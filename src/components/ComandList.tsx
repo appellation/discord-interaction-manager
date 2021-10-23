@@ -1,21 +1,17 @@
-import useSWR from 'swr';
-import { Checkbox, Container, Fab, Typography } from '@mui/material';
+import { Checkbox, Fab } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColumns } from '@mui/x-data-grid';
 import { Add, Delete, Edit } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 
-import fetcher, { fetch } from '../fetcher';
+export interface CommandListProps {
+	commands: any,
+	loading: boolean,
+	onDeleteClicked: (id: string) => () => Promise<void> | void,
+	onEditClicked: (id: string) => () => Promise<void> | void,
+}
 
-export default function Commands() {
-	const { data: me } = useSWR('/oauth2/@me', fetcher);
-	const { data: commands, isValidating, mutate } = useSWR(() => `/applications/${me.application.id}/commands`, fetcher);
+export default function CommandList({ commands, loading, onDeleteClicked, onEditClicked }: CommandListProps) {
 	const router = useRouter();
-
-	const onEditClicked = (id: string) => () => router.push(`/edit/${id}`);
-	const onDeleteClicked = (id: string) => async () => {
-		await fetch(`/applications/${me.application.id}/commands/${id}`, { method: 'DELETE' });
-		mutate();
-	};
 
 	const cols: GridColumns = [
 		{ field: 'name', headerName: 'Name' },
@@ -54,16 +50,13 @@ export default function Commands() {
 	const onAddClicked = () => router.push('/add');
 
 	return (
-		<Container>
-			<Typography variant="h4">Global Commands</Typography>
-			<div style={{ display: 'flex', height: '100%' }}>
-				<div style={{ flexGrow: 1 }}>
-					<DataGrid loading={isValidating} autoHeight columns={cols} rows={commands ?? []} />
-					<Fab color="primary" aria-label="add" onClick={onAddClicked} sx={{ position: 'absolute', right: 36, bottom: 36 }}>
-						<Add />
-					</Fab>
-				</div>
+		<div style={{ display: 'flex', height: '100%' }}>
+			<div style={{ flexGrow: 1 }}>
+				<DataGrid loading={loading} autoHeight columns={cols} rows={commands ?? []} />
+				<Fab color="primary" aria-label="add" onClick={onAddClicked} sx={{ position: 'absolute', right: 36, bottom: 36 }}>
+					<Add />
+				</Fab>
 			</div>
-		</Container>
+		</div>
 	);
 }

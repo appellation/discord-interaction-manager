@@ -18,7 +18,7 @@ export default function CommandOptionList({ name, options }: CommandOptionListPr
 
 	return (
 		<FieldArray name={name}>
-			{({ insert, remove, push }) => (
+			{({ remove, push }) => (
 				<div>
 					<Stack direction="row" spacing={2}>
 						<Typography variant="h5">Options</Typography>

@@ -22,9 +22,6 @@ export interface CommandOptionFields {
 export default function CommandOption({ option, parent, remove, controls = {} }: CommandOptionProps) {
 	return (
 		<Accordion {...controls} TransitionProps={{ unmountOnExit: true }}>
-			{/* <AccordionActions>
-				<IconButton><Add /></IconButton>
-			</AccordionActions> */}
 			<AccordionSummary
 				expandIcon={<ExpandMore />}
 				aria-controls={`${parent}.content`}
