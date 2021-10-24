@@ -1,9 +1,9 @@
+import { Container, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 
-import fetcher from '../../src/fetcher';
+import fetcher, { fetch } from '../../src/fetcher';
 import CommandList from '../../src/components/ComandList';
-import { Container, Typography } from '@mui/material';
 
 export default function GuildCommands() {
 	const router = useRouter();
