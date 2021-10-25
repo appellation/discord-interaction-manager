@@ -22,13 +22,16 @@ function SignedIn() {
 		await fetch(`/applications/${me.application.id}/commands/${id}`, { method: 'DELETE' });
 		mutate();
 	};
+	const onAddClicked = () => {
+    router.push('/add')
+  };
 
   const guildIdField = useRef<HTMLInputElement>(null);
 
   return (
     <>
       <Typography variant="h4">Global Commands</Typography>
-      <CommandList commands={commands} loading={isValidating} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />
+      <CommandList commands={commands} loading={isValidating} onAddClicked={onAddClicked} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />
 
       <Typography variant="h4">Guild Commands</Typography>
       <TextField label="Guild ID" type="number" inputRef={guildIdField} />

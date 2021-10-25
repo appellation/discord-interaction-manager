@@ -6,11 +6,12 @@ import { useRouter } from 'next/router';
 export interface CommandListProps {
 	commands: any,
 	loading: boolean,
+	onAddClicked: () => Promise<void> | void,
 	onDeleteClicked: (id: string) => () => Promise<void> | void,
 	onEditClicked: (id: string) => () => Promise<void> | void,
 }
 
-export default function CommandList({ commands, loading, onDeleteClicked, onEditClicked }: CommandListProps) {
+export default function CommandList({ commands, loading, onAddClicked, onDeleteClicked, onEditClicked }: CommandListProps) {
 	const router = useRouter();
 
 	const cols: GridColumns = [
@@ -46,8 +47,6 @@ export default function CommandList({ commands, loading, onDeleteClicked, onEdit
 			}
 		}
 	];
-
-	const onAddClicked = () => router.push('/add');
 
 	return (
 		<div style={{ display: 'flex', height: '100%' }}>

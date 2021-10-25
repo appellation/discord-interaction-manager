@@ -22,10 +22,14 @@ export default function GuildCommands() {
 		mutate();
 	};
 
+	const onAddClicked = () => {
+		router.push(`/${guildId}/add`);
+	};
+
 	return (
 		<Container>
 			<Typography variant="h4">{guildId}</Typography>
-			<CommandList commands={commands} loading={isValidating} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />
+			<CommandList commands={commands} loading={isValidating} onAddClicked={onAddClicked} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />
 		</Container>
 	);
 }
