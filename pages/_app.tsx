@@ -10,6 +10,7 @@ import SignInDialog from '../src/components/SignInDialog';
 import useSignInDialog from '../src/hooks/useSignInDialog';
 
 import 'normalize.css';
+import Footer from '../src/components/Footer';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -53,6 +54,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </AppBar>
       <SignInDialog open={signInDialogOpen} onClose={() => setSignInDialogOpen(false)} />
       <Component {...pageProps} />
+      <Footer />
     </>
   );
 }

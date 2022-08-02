@@ -1,4 +1,5 @@
 import { Typography, Button, Stack } from '@mui/material';
+import { Box } from '@mui/system';
 import { FieldArray } from 'formik';
 import { useState, SyntheticEvent } from 'react';
 
@@ -26,21 +27,23 @@ export default function CommandOptionList({ name, options }: CommandOptionListPr
 							push({ type: 0, name: '', description: '', required: false, autocomplete: false, options: [] } as CommandOptionFields);
 						}}>Add</Button>
 					</Stack>
-					{options.map((option, index) => {
-						const newParent = `${name}[${index}]`;
-						return (
-							<CommandOption
-								key={index}
-								parent={newParent}
-								option={option}
-								remove={() => remove(index)}
-								controls={{
-									expanded: expanded === newParent,
-									onChange: handleChange(newParent)
-								}}
-							/>
-						);
-					})}
+					<Box sx={{marginTop: 1, marginBottom: 1}}>
+						{options.map((option, index) => {
+							const newParent = `${name}[${index}]`;
+							return (
+								<CommandOption
+									key={index}
+									parent={newParent}
+									option={option}
+									remove={() => remove(index)}
+									controls={{
+										expanded: expanded === newParent,
+										onChange: handleChange(newParent)
+									}}
+								/>
+							);
+						})}
+					</Box>
 				</div>
 			)}
 		</FieldArray>

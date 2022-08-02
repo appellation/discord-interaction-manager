@@ -1,13 +1,13 @@
-import { Button, Container, Typography, TextField } from '@mui/material';
+import { Button, Container, Typography, TextField, Stack } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 import useSWR from 'swr';
 
 import fetcher, { fetch } from '../src/fetcher';
 import CommandList from '../src/components/ComandList';
 import useSignInDialog from '../src/hooks/useSignInDialog';
 import useToken from '../src/hooks/useToken';
-import { useRef } from 'react';
 
 function SignedIn() {
 	const { data: me } = useSWR('/oauth2/@me', fetcher);
@@ -26,16 +26,18 @@ function SignedIn() {
     router.push('/add')
   };
 
-  const guildIdField = useRef<HTMLInputElement>(null);
+  const [guildId, setGuildId] = useState('');
 
   return (
     <>
       <Typography variant="h4">Global Commands</Typography>
       <CommandList commands={commands} loading={isValidating} onAddClicked={onAddClicked} onEditClicked={onEditClicked} onDeleteClicked={onDeleteClicked} />
 
-      <Typography variant="h4">Guild Commands</Typography>
-      <TextField label="Guild ID" type="number" inputRef={guildIdField} />
-      <Link passHref={true} href={`/${guildIdField.current?.value}`}><Button variant="contained">Go</Button></Link>
+      <Typography variant="h4" sx={{ marginTop: 3 }}>Guild Commands</Typography>
+      <Stack direction='row' spacing={2}>
+        <TextField label="Guild ID" type="number" onChange={(e) => setGuildId(e.target.value)} />
+        <Link passHref href={`/${guildId}`}><Button disabled={guildId === ''} variant="contained">Go</Button></Link>
+      </Stack>
     </>
   );
 }
