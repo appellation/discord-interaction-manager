@@ -4,6 +4,7 @@ import useSWR from 'swr';
 
 import ApplicationCommand, { CommandFields } from '../../../src/components/ApplicationCommand';
 import fetcher, { fetch } from '../../../src/fetcher';
+import useSaveData from '../../../src/hooks/useSaveData';
 
 export default function EditGuildCommand() {
 	const router = useRouter();
@@ -11,23 +12,19 @@ export default function EditGuildCommand() {
 
 	const { data: me } = useSWR('/oauth2/@me', fetcher);
 	const { data: command, mutate } = useSWR(`/applications/${me?.application?.id}/guilds/${guildId}/commands/${commandId}`, fetcher);
-
-	const saveCommand = async (command: CommandFields) => {
-		await fetch(`/applications/${me.application.id}/guilds/${guildId}/commands/${commandId}`, {
+	const { save, DisplayError } = useSaveData<CommandFields>(
+		(command) => fetch(`/applications/${me.application.id}/guilds/${guildId}/commands/${commandId}`, {
 			method: 'PATCH',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify(command),
-		});
-
-		mutate(command);
-		router.back();
-	};
-
-	console.log(command);
+		}),
+		mutate,
+	);
 
 	return (
 		<Container>
-			{command ? <ApplicationCommand command={command} onSave={saveCommand} /> : "Loading"}
+			{command ? <ApplicationCommand command={command} onSave={save} /> : "Loading"}
+			<DisplayError />
 		</Container>
 	);
 }
