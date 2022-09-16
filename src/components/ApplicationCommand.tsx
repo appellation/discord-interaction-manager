@@ -1,10 +1,11 @@
-import { Button, Checkbox, FormControlLabel, Grid, MenuItem, Stack, TextField } from '@mui/material';
+import { Button, Checkbox, FormControlLabel, Grid, MenuItem, TextField } from '@mui/material';
 import { FastField, Field, Form, Formik } from 'formik';
 import { CommandOptionFields } from './CommandOption';
 import CommandOptionList from './CommandOptionList';
 
 export interface ApplicationCommandProps {
 	command?: CommandFields,
+	isGlobal: boolean,
 	onSave: (values: CommandFields) => Promise<void> | void,
 }
 
@@ -12,18 +13,25 @@ export interface CommandFields {
 	name: string,
 	type: number,
 	description: string,
-	default_permission: boolean,
+	dm_permission: boolean,
+	default_member_permissions: string,
 	options?: CommandOptionFields[],
+}
+
+function validateBitfield(value: string) {
+	if (/^\d*$/.test(value)) return null;
+	return 'Bitfields must be numeric';
 }
 
 export default function ApplicationCommand({
 	onSave,
-	command = { name: '', type: 1, description: '', default_permission: true, options: [] }
+	isGlobal,
+	command = { name: '', type: 1, description: '', default_member_permissions: '', dm_permission: true, options: [] }
 }: ApplicationCommandProps) {
 	return (
 		<Formik initialValues={command} onSubmit={onSave}>
 			{
-				({ isSubmitting, values }) => (
+				({ isSubmitting, values, errors }) => (
 					<Form>
 						<Grid container spacing={6}>
 							<Grid item>
@@ -68,7 +76,16 @@ export default function ApplicationCommand({
 							/>
 						}
 
-						<FormControlLabel control={<Field type="checkbox" name="default_permission" as={Checkbox} />} label="Default Permission" />
+						{/* <FastField
+							as={TextField}
+							name="default_member_permissions"
+							label="Default Member Permissions"
+							margin="normal"
+							validate={validateBitfield}
+							error={errors.default_member_permissions}
+							helperText={errors.default_member_permissions}
+						/> */}
+						{isGlobal && <FormControlLabel control={<Field type="checkbox" name="dm_permission" as={Checkbox} />} label="Allow in DMs" />}
 
 						{values.type === 1 && <CommandOptionList name="options" options={values.options ?? []} />}
 

@@ -23,7 +23,7 @@ export default function EditCommand() {
 
 	return (
 		<Container>
-			{command ? <ApplicationCommand command={command} onSave={save} /> : "Loading"}
+			{command ? <ApplicationCommand isGlobal={true} command={command} onSave={save} /> : "Loading"}
 			<DisplayError />
 		</Container>
 	);

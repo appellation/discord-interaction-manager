@@ -17,7 +17,7 @@ export default function Add() {
 	return (
 		<Container>
 			<Typography variant="h4">Add Command</Typography>
-			<ApplicationCommand onSave={saveCommand} />
+			<ApplicationCommand isGlobal={true} onSave={saveCommand} />
 		</Container>
 	);
 }

@@ -20,7 +20,7 @@ export default function Add() {
 	return (
 		<Container>
 			<Typography variant="h4">Add Command ({router.query.guildId})</Typography>
-			<ApplicationCommand onSave={save} />
+			<ApplicationCommand isGlobal={false} onSave={save} />
 			<DisplayError />
 		</Container>
 	);

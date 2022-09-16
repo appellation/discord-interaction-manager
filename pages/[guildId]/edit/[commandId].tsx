@@ -11,7 +11,7 @@ export default function EditGuildCommand() {
 	const { guildId, commandId } = router.query;
 
 	const { data: me } = useSWR('/oauth2/@me', fetcher);
-	const { data: command, mutate } = useSWR(`/applications/${me?.application?.id}/guilds/${guildId}/commands/${commandId}`, fetcher);
+	const { data: command, mutate } = useSWR(me && `/applications/${me?.application?.id}/guilds/${guildId}/commands/${commandId}`, fetcher);
 	const { save, DisplayError } = useSaveData<CommandFields>(
 		(command) => fetch(`/applications/${me.application.id}/guilds/${guildId}/commands/${commandId}`, {
 			method: 'PATCH',
@@ -23,7 +23,7 @@ export default function EditGuildCommand() {
 
 	return (
 		<Container>
-			{command ? <ApplicationCommand command={command} onSave={save} /> : "Loading"}
+			{command ? <ApplicationCommand isGlobal={false} command={command} onSave={save} /> : "Loading"}
 			<DisplayError />
 		</Container>
 	);
