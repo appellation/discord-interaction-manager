@@ -14,7 +14,6 @@ export interface CommandFields {
 	type: number,
 	description: string,
 	dm_permission: boolean,
-	default_member_permissions: string,
 	options?: CommandOptionFields[],
 }
 
@@ -26,7 +25,7 @@ function validateBitfield(value: string) {
 export default function ApplicationCommand({
 	onSave,
 	isGlobal,
-	command = { name: '', type: 1, description: '', default_member_permissions: '', dm_permission: true, options: [] }
+	command = { name: '', type: 1, description: '', dm_permission: true, options: [] }
 }: ApplicationCommandProps) {
 	return (
 		<Formik initialValues={command} onSubmit={onSave}>
