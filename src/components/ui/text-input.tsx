@@ -5,7 +5,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 
 type TextInputProps = {
-	readonly error: ReadonlySignal<string>;
+	readonly error?: ReadonlySignal<string>;
 	readonly label?: string;
 	readonly name: string;
 	readonly onBlur: FocusEventHandler<HTMLInputElement>;
@@ -13,7 +13,7 @@ type TextInputProps = {
 	readonly placeholder?: string;
 	readonly required?: boolean;
 	readonly type: "date" | "email" | "password" | "tel" | "text" | "url";
-	readonly value: ReadonlySignal<string | undefined>;
+	readonly value?: ReadonlySignal<string | undefined>;
 };
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
@@ -30,11 +30,11 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 					{...props}
 					ref={ref}
 					id={name}
-					value={value.value ?? ""}
-					aria-invalid={Boolean(error.value)}
+					value={value?.value ?? ""}
+					aria-invalid={Boolean(error?.value)}
 					aria-errormessage={`${name}-error`}
 				/>
-				{error.value && <div id={`${name}-error`}>{error}</div>}
+				{error?.value && <div id={`${name}-error`}>{error}</div>}
 			</div>
 		);
 	},
