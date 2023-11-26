@@ -1,3 +1,9 @@
+import CommandTable from "@/components/data/CommandTable";
+
 export default function HomePage() {
-	return <div>Hello world!</div>;
+	return (
+		<div className="container mx-auto">
+			<CommandTable />
+		</div>
+	);
 }
