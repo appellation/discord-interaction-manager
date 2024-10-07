@@ -5,6 +5,11 @@ export type ApplicationInfo = {
 	token?: string;
 };
 
+export function getApps(): Record<string, ApplicationInfo> {
+	const apps = localStorage.getItem("application_info");
+	return apps ? JSON.parse(apps) : {};
+}
+
 export function useApps() {
 	return useLocalStorage<Record<string, ApplicationInfo> | null>(
 		"application_info",

@@ -1,53 +1,52 @@
 import type { RESTGetAPIOAuth2CurrentAuthorizationResult } from "discord-api-types/v10";
-import { useApps, useCurrentApp } from "./state";
+import { getApps, useCurrentApp } from "./state";
 import {
-	QueryFunction,
+	QueryClient,
 	QueryFunctionContext,
 	QueryKey,
 	useQuery,
 } from "@tanstack/react-query";
-import { useCallback } from "react";
 
-export function useQueryFn<
-	T = unknown,
-	K extends QueryKey = QueryKey,
->(): QueryFunction<T, K> {
-	const [currentApp] = useCurrentApp();
-	const [apps] = useApps();
+async function defaultQueryFn({ queryKey, signal }: QueryFunctionContext) {
+	const [id, ...rest] = queryKey;
 
-	return useCallback(
-		async ({ queryKey, signal }: QueryFunctionContext<K>) => {
-			const [id, ...rest] = queryKey;
+	const apps = getApps();
+	const token = id ? apps?.[id as string].token : null;
+	const headers = new Headers();
+	if (token) {
+		headers.set("authorization", `Bearer ${token}`);
+	}
 
-			const queryId = (id as string | null) ?? currentApp;
-			const token = queryId ? apps?.[queryId].token : null;
-			const headers = new Headers();
-			if (token) {
-				headers.set("authorization", `Bearer ${token}`);
-			}
+	const path = rest.join("/");
+	const res = await fetch(`https://discord.com/api/v10/${path}`, {
+		headers,
+		signal,
+	});
 
-			const path = rest.join("/");
-			const res = await fetch(`https://discord.com/api/v10/${path}`, {
-				headers,
-				signal,
-			});
+	return res.json();
+}
 
-			return res.json();
+export const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			queryFn: defaultQueryFn,
 		},
-		[currentApp, apps],
-	);
+	},
+});
+
+export function useQueryKey(key: QueryKey, applicationId?: string | null) {
+	const [currentApp] = useCurrentApp();
+	return [applicationId ?? currentApp, ...key];
 }
 
 export function useFetchCurrentApp() {
-	const [currentApp] = useCurrentApp();
-	return useFetchUser(currentApp);
+	return useFetchUser(null);
 }
 
 export function useFetchUser(id: string | null) {
-	const queryFn = useQueryFn<RESTGetAPIOAuth2CurrentAuthorizationResult>();
+	const queryKey = useQueryKey(["oauth2", "@me"], id);
 
-	return useQuery({
-		queryKey: [id, "oauth2", "@me"],
-		queryFn,
+	return useQuery<RESTGetAPIOAuth2CurrentAuthorizationResult>({
+		queryKey,
 	});
 }

@@ -8,7 +8,6 @@ import type {
 	APIApplicationCommand,
 	RESTGetAPIApplicationCommandsResult,
 } from "discord-api-types/v10";
-import { useCurrentApp } from "@/lib/state";
 import { Alert } from "../ui/alert";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -26,8 +25,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "../ui/table";
-import { useQuery } from "@tanstack/react-query";
-import { useQueryFn } from "@/lib/fetch";
 
 export const columns: ColumnDef<APIApplicationCommand>[] = [
 	{ accessorKey: "type", header: "Type" },
@@ -72,16 +69,15 @@ export const columns: ColumnDef<APIApplicationCommand>[] = [
 	},
 ];
 
-export default function CommandTable() {
-	const [currentApp] = useCurrentApp();
-	const queryFn = useQueryFn<RESTGetAPIApplicationCommandsResult>();
-	const { data, error } = useQuery({
-		queryKey: [null, "applications", currentApp, "commands"],
-		enabled: currentApp != null,
-		queryFn,
-	});
+export default function CommandTable({
+	data,
+	error,
+}: {
+	data: RESTGetAPIApplicationCommandsResult;
+	error?: Error | null;
+}) {
 	const table = useReactTable({
-		data: data ?? [],
+		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 	});
