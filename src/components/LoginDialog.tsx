@@ -1,9 +1,9 @@
-import { useForm } from "@modular-forms/react";
 import type { RESTPostOAuth2ClientCredentialsResult } from "discord-api-types/v10";
-import type { PropsWithChildren } from "react";
-import { setApp, setCurrentApp } from "@/lib/state";
+import { useState, type PropsWithChildren } from "react";
+import { useApps, useCurrentApp } from "@/lib/state";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
+import { FormApi, useForm } from "@tanstack/react-form";
 import {
 	Dialog,
 	DialogContent,
@@ -20,7 +20,16 @@ type LoginForm = {
 	clientSecret: string;
 };
 
-async function handleSubmit({ clientId, clientSecret }: LoginForm) {
+async function onSubmit({
+	value,
+}: {
+	value: LoginForm;
+	formApi: FormApi<LoginForm>;
+}) {
+	const { clientId, clientSecret } = value;
+	const [, setApps] = useApps();
+	const [, setCurrentApp] = useCurrentApp();
+
 	const data = new URLSearchParams();
 	data.set("grant_type", "client_credentials");
 	data.set("scope", "applications.commands.update");
@@ -39,9 +48,14 @@ async function handleSubmit({ clientId, clientSecret }: LoginForm) {
 
 	const body: RESTPostOAuth2ClientCredentialsResult = await res.json();
 
-	setApp(clientId, {
-		secret: clientSecret,
-		token: body.access_token,
+	setApps((apps) => {
+		return {
+			...apps,
+			clientId: {
+				secret: clientSecret,
+				token: body.access_token,
+			},
+		};
 	});
 	setCurrentApp(clientId);
 }
@@ -56,13 +70,27 @@ export function LoginDialog({
 	onOpenChange?(open: boolean): void;
 	readonly open?: boolean;
 }>) {
-	const [{ submitting, response }, { Form, Field }] = useForm<LoginForm>();
+	const {
+		Field,
+		handleSubmit,
+		state: { canSubmit, isSubmitting },
+	} = useForm<LoginForm>({
+		onSubmit,
+	});
+	const [submitError, setSubmitError] = useState<Error>();
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogTrigger asChild={asChild}>{children}</DialogTrigger>
 			<DialogContent>
-				<Form onSubmit={handleSubmit}>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						handleSubmit()
+							.then(() => onOpenChange?.(false))
+							.catch(setSubmitError);
+					}}
+				>
 					<DialogHeader>
 						<DialogTitle>Login</DialogTitle>
 						<DialogDescription>
@@ -70,21 +98,32 @@ export function LoginDialog({
 						</DialogDescription>
 					</DialogHeader>
 					<div className="my-4">
-						{response.value.status === "error" ? (
+						{submitError ? (
 							<Alert variant="destructive">
 								<AlertTitle>Error</AlertTitle>
-								<AlertDescription>{response.value.message}</AlertDescription>
+								<AlertDescription>{submitError?.message}</AlertDescription>
 							</Alert>
 						) : null}
 						<Field name="clientId">
-							{(_field, props) => (
-								<TextInput {...props} type="text" label="Client ID" required />
+							{(field) => (
+								<TextInput
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={field.handleChange}
+									name={field.name}
+									type="text"
+									label="Client ID"
+									required
+								/>
 							)}
 						</Field>
 						<Field name="clientSecret">
-							{(_field, props) => (
+							{(field) => (
 								<TextInput
-									{...props}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={field.handleChange}
+									name={field.name}
 									type="password"
 									label="Client Secret"
 									required
@@ -93,11 +132,11 @@ export function LoginDialog({
 						</Field>
 					</div>
 					<DialogFooter>
-						<Button disabled={submitting.value} type="submit">
+						<Button disabled={!canSubmit || isSubmitting} type="submit">
 							Login
 						</Button>
 					</DialogFooter>
-				</Form>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);
