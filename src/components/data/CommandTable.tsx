@@ -8,7 +8,6 @@ import type {
 	APIApplicationCommand,
 	RESTGetAPIApplicationCommandsResult,
 } from "discord-api-types/v10";
-import useSWR from "swr";
 import { useCurrentApp } from "@/lib/state";
 import { Alert } from "../ui/alert";
 import { Button } from "../ui/button";
@@ -27,6 +26,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "../ui/table";
+import { useQuery } from "@tanstack/react-query";
+import { useQueryFn } from "@/lib/fetch";
 
 export const columns: ColumnDef<APIApplicationCommand>[] = [
 	{ accessorKey: "type", header: "Type" },
@@ -73,9 +74,12 @@ export const columns: ColumnDef<APIApplicationCommand>[] = [
 
 export default function CommandTable() {
 	const [currentApp] = useCurrentApp();
-	const { data, error } = useSWR<RESTGetAPIApplicationCommandsResult>(
-		currentApp ? `/applications/${currentApp}/commands` : null,
-	);
+	const queryFn = useQueryFn<RESTGetAPIApplicationCommandsResult>();
+	const { data, error } = useQuery({
+		queryKey: [null, "applications", currentApp, "commands"],
+		enabled: currentApp != null,
+		queryFn,
+	});
 	const table = useReactTable({
 		data: data ?? [],
 		columns,
