@@ -11,7 +11,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "./ui/dialog";
-import { FieldTextInput } from "./ui/text-input";
+import { TextInputField } from "./ui/text-input";
 
 type LoginForm = {
 	clientId: string;
@@ -97,7 +97,7 @@ export default function LoginForm({
 				) : null}
 				<Field name="clientId">
 					{(field) => (
-						<FieldTextInput
+						<TextInputField
 							field={field}
 							label="Client ID"
 							required
@@ -107,7 +107,7 @@ export default function LoginForm({
 				</Field>
 				<Field name="clientSecret">
 					{(field) => (
-						<FieldTextInput
+						<TextInputField
 							field={field}
 							label="Client Secret"
 							required

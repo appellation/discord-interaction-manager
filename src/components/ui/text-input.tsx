@@ -44,14 +44,14 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 	},
 );
 
-export type FieldTextInputProps = Omit<
+export type TextInputFieldProps = Omit<
 	TextInputProps,
 	"name" | "onBlur" | "onChange" | "value"
 > & {
 	readonly field: FieldApi<any, any, any, any, any>;
 };
 
-export const FieldTextInput = forwardRef<HTMLInputElement, FieldTextInputProps>(
+export const TextInputField = forwardRef<HTMLInputElement, TextInputFieldProps>(
 	({ field, ...rest }, ref) => (
 		<TextInput
 			name={field.name}

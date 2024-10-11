@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { RESTGetAPIApplicationCommandResult } from "discord-api-types/v10";
 import { useParams } from "wouter";
 import { CheckboxField } from "~/components/ui/checkbox";
-import { FieldTextInput } from "~/components/ui/text-input";
+import { TextInputField } from "~/components/ui/text-input";
 import { Textarea } from "~/components/ui/textarea";
 import { useQueryKey } from "~/lib/fetch";
 import { useCurrentApp } from "~/lib/state";
@@ -29,11 +29,11 @@ export default function EditCommand() {
 		<main className="container mx-auto">
 			<form>
 				<Field name="name">
-					{(field) => <FieldTextInput field={field} label="Name" type="text" />}
+					{(field) => <TextInputField field={field} label="Name" type="text" />}
 				</Field>
 				<Field name="guild_id">
 					{(field) => (
-						<FieldTextInput
+						<TextInputField
 							disabled
 							field={field}
 							label="Guild ID"
@@ -53,7 +53,7 @@ export default function EditCommand() {
 				</Field>
 				<Field name="default_member_permissions">
 					{(field) => (
-						<FieldTextInput
+						<TextInputField
 							field={field}
 							label="Default Member Permissions"
 							type="text"
