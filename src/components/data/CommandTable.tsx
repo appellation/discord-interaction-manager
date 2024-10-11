@@ -58,7 +58,7 @@ const columns: ColumnDef<APIApplicationCommand>[] = [
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost">Menu</Button>
+						<Button variant="default">Menu</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent>
 						<DropdownMenuItem asChild>

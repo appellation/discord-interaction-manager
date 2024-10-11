@@ -1,7 +1,4 @@
 import { useMemo, useState } from "react";
-import { useFetchUser } from "@/lib/fetch";
-import type { ApplicationInfo } from "@/lib/state";
-import { useApps, useCurrentApp } from "@/lib/state";
 import { LoginDialog } from "./LoginDialog";
 import { Button } from "./ui/button";
 import {
@@ -13,6 +10,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useFetchUser } from "~/lib/fetch";
+import type { ApplicationInfo } from "~/lib/state";
+import { useApps, useCurrentApp } from "~/lib/state";
 
 function AppMenuItem({
 	id,

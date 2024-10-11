@@ -2,7 +2,7 @@ import type { FormApi } from "@tanstack/react-form";
 import { useForm } from "@tanstack/react-form";
 import type { RESTPostOAuth2ClientCredentialsResult } from "discord-api-types/v10";
 import { useCallback, useState } from "react";
-import { useApps, useCurrentApp } from "@/lib/state";
+import { useApps, useCurrentApp } from "~/lib/state";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import {

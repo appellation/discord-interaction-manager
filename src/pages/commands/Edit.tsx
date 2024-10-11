@@ -2,11 +2,11 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import type { RESTGetAPIApplicationCommandResult } from "discord-api-types/v10";
 import { useParams } from "wouter";
-import { CheckboxField } from "@/components/ui/checkbox";
-import { FieldTextInput } from "@/components/ui/text-input";
-import { Textarea } from "@/components/ui/textarea";
-import { useQueryKey } from "@/lib/fetch";
-import { useCurrentApp } from "@/lib/state";
+import { CheckboxField } from "~/components/ui/checkbox";
+import { FieldTextInput } from "~/components/ui/text-input";
+import { Textarea } from "~/components/ui/textarea";
+import { useQueryKey } from "~/lib/fetch";
+import { useCurrentApp } from "~/lib/state";
 
 export default function EditCommand() {
 	const { commandId } = useParams();
