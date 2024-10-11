@@ -25,6 +25,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "../ui/table";
+import { Link } from "wouter";
 
 export const columns: ColumnDef<APIApplicationCommand>[] = [
 	{ accessorKey: "type", header: "Type" },
@@ -53,14 +54,16 @@ export const columns: ColumnDef<APIApplicationCommand>[] = [
 	},
 	{
 		id: "actions",
-		cell() {
+		cell({ row }) {
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="ghost">Menu</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent>
-						<DropdownMenuItem>Edit</DropdownMenuItem>
+						<DropdownMenuItem asChild>
+							<Link href={`/commands/${row.original.id}/edit`}>Edit</Link>
+						</DropdownMenuItem>
 						<DropdownMenuItem>Delete</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

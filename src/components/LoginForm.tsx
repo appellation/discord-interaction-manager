@@ -9,7 +9,7 @@ import {
 	DialogTitle,
 } from "./ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { TextInput } from "./ui/text-input";
+import { FieldTextInput } from "./ui/text-input";
 import { Button } from "./ui/button";
 
 type LoginForm = {
@@ -88,11 +88,8 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 				) : null}
 				<Field name="clientId">
 					{(field) => (
-						<TextInput
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={field.handleChange}
-							name={field.name}
+						<FieldTextInput
+							field={field}
 							type="text"
 							label="Client ID"
 							required
@@ -101,11 +98,8 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 				</Field>
 				<Field name="clientSecret">
 					{(field) => (
-						<TextInput
-							value={field.state.value}
-							onBlur={field.handleBlur}
-							onChange={field.handleChange}
-							name={field.name}
+						<FieldTextInput
+							field={field}
 							type="password"
 							label="Client Secret"
 							required

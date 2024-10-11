@@ -1,11 +1,11 @@
 import type { ReadonlySignal } from "@preact/signals-react";
 import type { FocusEventHandler } from "react";
 import { forwardRef, useId } from "react";
-import { Input } from "./input";
+import { Input, InputProps } from "./input";
 import { Label } from "./label";
-import { Updater } from "@tanstack/react-form";
+import { FieldApi, Updater } from "@tanstack/react-form";
 
-type TextInputProps = {
+type TextInputProps = InputProps & {
 	readonly error?: ReadonlySignal<string>;
 	readonly label?: string;
 	readonly name: string;
@@ -16,6 +16,25 @@ type TextInputProps = {
 	readonly type: "date" | "email" | "password" | "tel" | "text" | "url";
 	readonly value?: string;
 };
+
+export type FieldTextInputProps = {
+	field: FieldApi<any, any, any, any, any>;
+} & Omit<TextInputProps, "name" | "onBlur" | "onChange" | "value">;
+
+export const FieldTextInput = forwardRef<HTMLInputElement, FieldTextInputProps>(
+	({ field, ...rest }, ref) => {
+		return (
+			<TextInput
+				name={field.name}
+				onBlur={field.handleBlur}
+				onChange={field.handleChange}
+				value={field.state.value}
+				ref={ref}
+				{...rest}
+			/>
+		);
+	},
+);
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 	({ label, value, error, onChange, ...props }, ref) => {

@@ -4,6 +4,7 @@ import LoginMenu from "./components/LoginMenu";
 import { Heading } from "./components/ui/typography";
 
 const HomePage = lazy(async () => import("./pages/Home"));
+const EditCommandPage = lazy(() => import("./pages/commands/Edit"));
 
 function App() {
 	return (
@@ -13,6 +14,7 @@ function App() {
 			<Suspense>
 				<Switch>
 					<Route path="/" component={HomePage} />
+					<Route path="/commands/:commandId/edit" component={EditCommandPage} />
 				</Switch>
 			</Suspense>
 		</>

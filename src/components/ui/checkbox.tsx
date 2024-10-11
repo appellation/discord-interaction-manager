@@ -1,7 +1,10 @@
+import * as React from "react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { Check } from "lucide-react";
-import * as React from "react";
+
 import { cn } from "@/lib/utils";
+import { Label } from "./label";
+import { FieldApi } from "@tanstack/react-form";
 
 const Checkbox = React.forwardRef<
 	React.ElementRef<typeof CheckboxPrimitive.Root>,
@@ -24,4 +27,30 @@ const Checkbox = React.forwardRef<
 ));
 Checkbox.displayName = CheckboxPrimitive.Root.displayName;
 
-export { Checkbox };
+export type CheckboxFieldProps = {
+	label: string;
+	field: FieldApi<any, any, any, any, any>;
+} & Omit<
+	React.ComponentProps<typeof CheckboxPrimitive.Root>,
+	"name" | "checked" | "onBlur" | "onCheckedChange"
+>;
+
+const CheckboxField = ({ label, field, ...props }: CheckboxFieldProps) => {
+	const id = React.useId();
+
+	return (
+		<>
+			<Label htmlFor={id}>{label}</Label>
+			<Checkbox
+				{...props}
+				id={id}
+				name={field.name}
+				checked={field.state.value}
+				onBlur={field.handleBlur}
+				onCheckedChange={(e) => field.handleChange(Boolean(e))}
+			/>
+		</>
+	);
+};
+
+export { Checkbox, CheckboxField };
