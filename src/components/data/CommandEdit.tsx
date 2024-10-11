@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import type { APIApplicationCommand } from "discord-api-types/v10";
 import { CheckboxField } from "../ui/checkbox";
 import { TextInputField } from "../ui/text-input";
-import { Textarea } from "../ui/textarea";
+import { Textarea, TextareaField } from "../ui/textarea";
 
 export default function CommandEdit({
 	data,
@@ -31,14 +31,7 @@ export default function CommandEdit({
 				</Field>
 			)}
 			<Field name="description">
-				{(field) => (
-					<Textarea
-						name={field.name}
-						onBlur={field.handleBlur}
-						onChange={(error) => field.handleChange(error.target.value)}
-						value={field.state.value}
-					/>
-				)}
+				{(field) => <TextareaField field={field} label="Description" />}
 			</Field>
 			<Field name="default_member_permissions">
 				{(field) => (
