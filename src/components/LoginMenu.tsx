@@ -61,9 +61,9 @@ function AppMenu({ apps }: { readonly apps: Record<string, ApplicationInfo> }) {
 				<DropdownMenuLabel>My Applications</DropdownMenuLabel>
 				{orderedApps.map((app) => (
 					<AppMenuItem
-						key={app.id}
-						id={app.id}
 						checked={currentApp === app.id}
+						id={app.id}
+						key={app.id}
 					/>
 				))}
 				{currentApp ? (
@@ -75,7 +75,7 @@ function AppMenu({ apps }: { readonly apps: Record<string, ApplicationInfo> }) {
 					</>
 				) : null}
 			</DropdownMenuContent>
-			<LoginDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+			<LoginDialog onOpenChange={setDialogOpen} open={dialogOpen} />
 		</DropdownMenu>
 	);
 }

@@ -1,12 +1,12 @@
+import { useForm } from "@tanstack/react-form";
+import { useQuery } from "@tanstack/react-query";
+import type { RESTGetAPIApplicationCommandResult } from "discord-api-types/v10";
+import { useParams } from "wouter";
 import { CheckboxField } from "@/components/ui/checkbox";
 import { FieldTextInput } from "@/components/ui/text-input";
 import { Textarea } from "@/components/ui/textarea";
 import { useQueryKey } from "@/lib/fetch";
 import { useCurrentApp } from "@/lib/state";
-import { useForm } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
-import { RESTGetAPIApplicationCommandResult } from "discord-api-types/v10";
-import { useParams } from "wouter";
 
 export default function EditCommand() {
 	const { commandId } = useParams();
@@ -29,15 +29,15 @@ export default function EditCommand() {
 		<main className="container mx-auto">
 			<form>
 				<Field name="name">
-					{(field) => <FieldTextInput field={field} type="text" label="Name" />}
+					{(field) => <FieldTextInput field={field} label="Name" type="text" />}
 				</Field>
 				<Field name="guild_id">
 					{(field) => (
 						<FieldTextInput
-							field={field}
-							type="text"
-							label="Guild ID"
 							disabled
+							field={field}
+							label="Guild ID"
+							type="text"
 						/>
 					)}
 				</Field>
@@ -46,7 +46,7 @@ export default function EditCommand() {
 						<Textarea
 							name={field.name}
 							onBlur={field.handleBlur}
-							onChange={(e) => field.handleChange(e.target.value)}
+							onChange={(error) => field.handleChange(error.target.value)}
 							value={field.state.value}
 						/>
 					)}
@@ -55,22 +55,22 @@ export default function EditCommand() {
 					{(field) => (
 						<FieldTextInput
 							field={field}
-							type="text"
 							label="Default Member Permissions"
+							type="text"
 						/>
 					)}
 				</Field>
 				<div className="flex items-center gap-2">
 					<Field name="dm_permission">
-						{(field) => <CheckboxField label="DM Permission" field={field} />}
+						{(field) => <CheckboxField field={field} label="DM Permission" />}
 					</Field>
 					<Field name="default_permission">
 						{(field) => (
-							<CheckboxField label="Default Permission" field={field} />
+							<CheckboxField field={field} label="Default Permission" />
 						)}
 					</Field>
 					<Field name="nsfw">
-						{(field) => <CheckboxField label="NSFW" field={field} />}
+						{(field) => <CheckboxField field={field} label="NSFW" />}
 					</Field>
 				</div>
 			</form>

@@ -1,11 +1,7 @@
+import type { QueryFunctionContext, QueryKey } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import type { RESTGetAPIOAuth2CurrentAuthorizationResult } from "discord-api-types/v10";
 import { getApps, useCurrentApp } from "./state";
-import {
-	QueryClient,
-	QueryFunctionContext,
-	QueryKey,
-	useQuery,
-} from "@tanstack/react-query";
 
 async function defaultQueryFn({ queryKey, signal }: QueryFunctionContext) {
 	const [id, ...rest] = queryKey;

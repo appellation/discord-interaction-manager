@@ -1,8 +1,7 @@
 import { type PropsWithChildren, Suspense, lazy } from "react";
-
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 
-const LoginForm = lazy(() => import("./LoginForm"));
+const LoginForm = lazy(async () => import("./LoginForm"));
 
 export function LoginDialog({
 	children,
@@ -11,11 +10,11 @@ export function LoginDialog({
 	onOpenChange,
 }: PropsWithChildren<{
 	readonly asChild?: boolean;
-	onOpenChange?(open: boolean): void;
+	onOpenChange?(this: void, open: boolean): void;
 	readonly open?: boolean;
 }>) {
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog onOpenChange={onOpenChange} open={open}>
 			<DialogTrigger asChild={asChild}>{children}</DialogTrigger>
 			<DialogContent>
 				<Suspense>

@@ -1,9 +1,10 @@
 import type { ReadonlySignal } from "@preact/signals-react";
+import type { FieldApi, Updater } from "@tanstack/react-form";
 import type { FocusEventHandler } from "react";
 import { forwardRef, useId } from "react";
-import { Input, InputProps } from "./input";
+import type { InputProps } from "./input";
+import { Input } from "./input";
 import { Label } from "./label";
-import { FieldApi, Updater } from "@tanstack/react-form";
 
 type TextInputProps = InputProps & {
 	readonly error?: ReadonlySignal<string>;
@@ -16,25 +17,6 @@ type TextInputProps = InputProps & {
 	readonly type: "date" | "email" | "password" | "tel" | "text" | "url";
 	readonly value?: string;
 };
-
-export type FieldTextInputProps = {
-	field: FieldApi<any, any, any, any, any>;
-} & Omit<TextInputProps, "name" | "onBlur" | "onChange" | "value">;
-
-export const FieldTextInput = forwardRef<HTMLInputElement, FieldTextInputProps>(
-	({ field, ...rest }, ref) => {
-		return (
-			<TextInput
-				name={field.name}
-				onBlur={field.handleBlur}
-				onChange={field.handleChange}
-				value={field.state.value}
-				ref={ref}
-				{...rest}
-			/>
-		);
-	},
-);
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 	({ label, value, error, onChange, ...props }, ref) => {
@@ -49,15 +31,35 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 				)}
 				<Input
 					{...props}
-					onChange={(e) => onChange?.(e.target.value)}
-					ref={ref}
-					id={id}
-					value={value ?? ""}
-					aria-invalid={Boolean(error?.value)}
 					aria-errormessage={`${id}-error`}
+					aria-invalid={Boolean(error?.value)}
+					id={id}
+					onChange={(event) => onChange?.(event.target.value)}
+					ref={ref}
+					value={value ?? ""}
 				/>
 				{error?.value && <div id={`${id}-error`}>{error}</div>}
 			</div>
 		);
 	},
+);
+
+export type FieldTextInputProps = Omit<
+	TextInputProps,
+	"name" | "onBlur" | "onChange" | "value"
+> & {
+	readonly field: FieldApi<any, any, any, any, any>;
+};
+
+export const FieldTextInput = forwardRef<HTMLInputElement, FieldTextInputProps>(
+	({ field, ...rest }, ref) => (
+		<TextInput
+			name={field.name}
+			onBlur={field.handleBlur}
+			onChange={field.handleChange}
+			ref={ref}
+			value={field.state.value}
+			{...rest}
+		/>
+	),
 );

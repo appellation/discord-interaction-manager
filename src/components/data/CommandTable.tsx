@@ -8,6 +8,7 @@ import type {
 	APIApplicationCommand,
 	RESTGetAPIApplicationCommandsResult,
 } from "discord-api-types/v10";
+import { Link } from "wouter";
 import { Alert } from "../ui/alert";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -25,9 +26,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "../ui/table";
-import { Link } from "wouter";
 
-export const columns: ColumnDef<APIApplicationCommand>[] = [
+const columns: ColumnDef<APIApplicationCommand>[] = [
 	{ accessorKey: "type", header: "Type" },
 	{ accessorKey: "name", header: "Name" },
 	{ accessorKey: "description", header: "Description" },
@@ -35,21 +35,21 @@ export const columns: ColumnDef<APIApplicationCommand>[] = [
 		accessorKey: "dm_permission",
 		header: "DM Permission",
 		cell({ getValue }) {
-			return <Checkbox disabled checked={getValue() as boolean} />;
+			return <Checkbox checked={getValue() as boolean} disabled />;
 		},
 	},
 	{
 		accessorKey: "default_permission",
 		header: "Default Permission",
 		cell({ getValue }) {
-			return <Checkbox disabled checked={getValue() as boolean} />;
+			return <Checkbox checked={getValue() as boolean} disabled />;
 		},
 	},
 	{
 		accessorKey: "nsfw",
 		header: "NSFW",
 		cell({ getValue }) {
-			return <Checkbox disabled checked={getValue() as boolean} />;
+			return <Checkbox checked={getValue() as boolean} disabled />;
 		},
 	},
 	{
@@ -76,8 +76,8 @@ export default function CommandTable({
 	data,
 	error,
 }: {
-	data: RESTGetAPIApplicationCommandsResult;
-	error?: Error | null;
+	readonly data: RESTGetAPIApplicationCommandsResult;
+	readonly error?: Error | null;
 }) {
 	const table = useReactTable({
 		data,
@@ -87,7 +87,7 @@ export default function CommandTable({
 
 	return (
 		<div className="rounded border">
-			{error && <Alert variant="destructive">{error.toString()}</Alert>}
+			{error && <Alert variant="destructive">{error.message}</Alert>}
 			<Table>
 				<TableHeader>
 					{table.getHeaderGroups().map((headerGroup) => (
@@ -99,7 +99,7 @@ export default function CommandTable({
 										: flexRender(
 												header.column.columnDef.header,
 												header.getContext(),
-										  )}
+											)}
 								</TableHead>
 							))}
 						</TableRow>

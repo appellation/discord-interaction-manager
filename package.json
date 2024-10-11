@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
-		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix && prettier -w .",
+		"lint": "eslint . --fix && prettier -w .",
 		"preview": "vite preview"
 	},
 	"dependencies": {
@@ -33,15 +33,13 @@
 	"devDependencies": {
 		"@types/react": "^18.2.37",
 		"@types/react-dom": "^18.2.15",
-		"@typescript-eslint/eslint-plugin": "^6.11.0",
-		"@typescript-eslint/parser": "^6.11.0",
+		"@typescript-eslint/eslint-plugin": "^8.8.1",
+		"@typescript-eslint/parser": "^8.8.1",
 		"@unocss/reset": "^0.57.6",
 		"@vitejs/plugin-react-swc": "^3.5.0",
-		"eslint": "^8.54.0",
-		"eslint-config-neon": "^0.1.57",
-		"eslint-plugin-react-hooks": "^4.6.0",
-		"eslint-plugin-react-refresh": "^0.4.4",
-		"prettier": "^3.1.0",
+		"eslint": "^9.12.0",
+		"eslint-config-neon": "^0.2.0",
+		"prettier": "^3.3.3",
 		"typescript": "^5.2.2",
 		"unocss": "^0.57.7",
 		"vite": "^5.0.0"

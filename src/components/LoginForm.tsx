@@ -1,78 +1,87 @@
+import type { FormApi } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
+import type { RESTPostOAuth2ClientCredentialsResult } from "discord-api-types/v10";
+import { useCallback, useState } from "react";
 import { useApps, useCurrentApp } from "@/lib/state";
-import { FormApi, useForm } from "@tanstack/react-form";
-import { RESTPostOAuth2ClientCredentialsResult } from "discord-api-types/v10";
-import { useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { Button } from "./ui/button";
 import {
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "./ui/dialog";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { FieldTextInput } from "./ui/text-input";
-import { Button } from "./ui/button";
 
 type LoginForm = {
 	clientId: string;
 	clientSecret: string;
 };
 
-async function onSubmit({
-	value,
+export default function LoginForm({
+	onSuccess,
 }: {
-	value: LoginForm;
-	formApi: FormApi<LoginForm>;
+	onSuccess(this: void): void;
 }) {
-	const { clientId, clientSecret } = value;
 	const [, setApps] = useApps();
 	const [, setCurrentApp] = useCurrentApp();
 
-	const data = new URLSearchParams();
-	data.set("grant_type", "client_credentials");
-	data.set("scope", "applications.commands.update");
+	const onSubmit = useCallback(
+		async ({ value }: { formApi: FormApi<LoginForm>; value: LoginForm }) => {
+			const { clientId, clientSecret } = value;
 
-	const res = await fetch("https://discord.com/api/v10/oauth2/token", {
-		body: data,
-		headers: {
-			authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+			const data = new URLSearchParams();
+			data.set("grant_type", "client_credentials");
+			data.set("scope", "applications.commands.update");
+
+			const res = await fetch("https://discord.com/api/v10/oauth2/token", {
+				body: data,
+				headers: {
+					authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+				},
+				method: "POST",
+			});
+
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+
+			const body: RESTPostOAuth2ClientCredentialsResult = await res.json();
+
+			setApps((apps) => ({
+				...apps,
+				[clientId]: {
+					secret: clientSecret,
+					token: body.access_token,
+				},
+			}));
+			setCurrentApp(clientId);
 		},
-		method: "POST",
-	});
+		[setApps, setCurrentApp],
+	);
 
-	if (!res.ok) {
-		throw new Error(await res.text());
-	}
-
-	const body: RESTPostOAuth2ClientCredentialsResult = await res.json();
-
-	setApps((apps) => {
-		return {
-			...apps,
-			[clientId]: {
-				secret: clientSecret,
-				token: body.access_token,
-			},
-		};
-	});
-	setCurrentApp(clientId);
-}
-
-export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 	const {
 		Field,
 		handleSubmit,
 		state: { canSubmit, isSubmitting },
-	} = useForm<LoginForm>({
-		onSubmit,
-	});
+	} = useForm<LoginForm>({ onSubmit });
 	const [submitError, setSubmitError] = useState<Error>();
+
+	const handleFormSubmit = useCallback(
+		async (event: React.FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+			try {
+				await handleSubmit();
+				onSuccess();
+			} catch (error) {
+				setSubmitError(error as Error);
+			}
+		},
+		[handleSubmit, onSuccess],
+	);
+
 	return (
-		<form
-			onSubmit={(e) => {
-				e.preventDefault();
-				handleSubmit().then(onSuccess).catch(setSubmitError);
-			}}
-		>
+		<form onSubmit={async (event) => handleFormSubmit(event)}>
 			<DialogHeader>
 				<DialogTitle>Login</DialogTitle>
 				<DialogDescription>
@@ -90,9 +99,9 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 					{(field) => (
 						<FieldTextInput
 							field={field}
-							type="text"
 							label="Client ID"
 							required
+							type="text"
 						/>
 					)}
 				</Field>
@@ -100,9 +109,9 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 					{(field) => (
 						<FieldTextInput
 							field={field}
-							type="password"
 							label="Client Secret"
 							required
+							type="password"
 						/>
 					)}
 				</Field>
