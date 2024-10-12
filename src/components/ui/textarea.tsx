@@ -1,7 +1,7 @@
 import type { FieldApi } from "@tanstack/react-form";
 import * as React from "react";
-import { Label } from "./label";
 import { cn } from "~/lib/utils";
+import { Label } from "./label";
 
 export type TextareaProps =
 	React.TextareaHTMLAttributes<HTMLTextAreaElement> & {};

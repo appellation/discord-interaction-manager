@@ -1,4 +1,5 @@
 import * as LabelPrimitive from "@radix-ui/react-label";
+import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { cn } from "~/lib/utils";
@@ -20,4 +21,29 @@ const Label = React.forwardRef<
 ));
 Label.displayName = LabelPrimitive.Root.displayName;
 
-export { Label };
+export enum LabelPosition {
+	After = "after",
+	Before = "before",
+}
+
+function LabeledElement({
+	label,
+	position = LabelPosition.After,
+	children,
+}: React.PropsWithChildren<{
+	readonly label: string;
+	readonly position?: LabelPosition;
+}>) {
+	const id = React.useId();
+	const content = <Slot id={id}>{children}</Slot>;
+
+	return (
+		<>
+			{position === LabelPosition.Before && content}
+			<Label htmlFor={id}>{label}</Label>
+			{position === LabelPosition.After && content}
+		</>
+	);
+}
+
+export { Label, LabeledElement };

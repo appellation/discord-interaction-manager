@@ -1,8 +1,10 @@
 import { useForm } from "@tanstack/react-form";
-import type { APIApplicationCommand } from "discord-api-types/v10";
+import { type APIApplicationCommand } from "discord-api-types/v10";
 import { CheckboxField } from "../ui/checkbox";
 import { TextInputField } from "../ui/text-input";
-import { Textarea, TextareaField } from "../ui/textarea";
+import { TextareaField } from "../ui/textarea";
+import { Heading } from "../ui/typography";
+import CommandOptionsEdit from "./CommandOptionsEdit";
 
 export default function CommandEdit({
 	data,
@@ -42,19 +44,19 @@ export default function CommandEdit({
 					/>
 				)}
 			</Field>
-			<div className="flex items-center gap-2">
-				<Field name="dm_permission">
-					{(field) => <CheckboxField field={field} label="DM Permission" />}
-				</Field>
-				<Field name="default_permission">
-					{(field) => (
-						<CheckboxField field={field} label="Default Permission" />
-					)}
-				</Field>
-				<Field name="nsfw">
-					{(field) => <CheckboxField field={field} label="NSFW" />}
-				</Field>
-			</div>
+			<Field name="dm_permission">
+				{(field) => <CheckboxField field={field} label="DM Permission" />}
+			</Field>
+			<Field name="default_permission">
+				{(field) => <CheckboxField field={field} label="Default Permission" />}
+			</Field>
+			<Field name="nsfw">
+				{(field) => <CheckboxField field={field} label="NSFW" />}
+			</Field>
+			<Heading level={2}>Options</Heading>
+			<Field name="options">
+				{(field) => <CommandOptionsEdit Field={Field} field={field} />}
+			</Field>
 		</form>
 	);
 }
