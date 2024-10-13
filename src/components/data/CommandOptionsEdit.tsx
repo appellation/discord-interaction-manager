@@ -9,6 +9,7 @@ import {
 } from "discord-api-types/v10";
 import { getAllEnumValues } from "enum-for";
 import { Fragment } from "react";
+import { Button } from "../ui/button";
 import { CheckboxField, CheckboxFieldList } from "../ui/checkbox";
 import { LabeledElement } from "../ui/label";
 import {
@@ -18,8 +19,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "../ui/select";
+import { Separator } from "../ui/separator";
 import { TextInputField } from "../ui/text-input";
 import { TextareaField } from "../ui/textarea";
+import { Heading } from "../ui/typography";
 
 const SUB_OPTIONS = [
 	ApplicationCommandOptionType.Subcommand,
@@ -68,52 +71,48 @@ type CommandOptionEditProps = {
 
 function CommandOptionEdit({ Field, index, option }: CommandOptionEditProps) {
 	return (
-		<>
-			<Field name={`options[${index}].type`}>
-				{(field) => (
-					<LabeledElement label="Type">
-						<Select
-							onValueChange={(value) =>
-								field.handleChange(Number.parseInt(value, 10))
-							}
-							value={field.state.value.toString()}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="Type" />
-							</SelectTrigger>
-							<SelectContent>
-								{getAllEnumValues(ApplicationCommandOptionType).map((type) => (
-									<SelectItem key={type} value={type.toString()}>
-										{ApplicationCommandOptionType[type]}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</LabeledElement>
-				)}
-			</Field>
-			<Field name={`options[${index}].name`}>
-				{(field) => <TextInputField field={field} label="Name" type="text" />}
-			</Field>
-			<Field name={`options[${index}].description`}>
-				{(field) => <TextareaField field={field} label="Description" />}
-			</Field>
-			{!SUB_OPTIONS.includes(option.type) && (
-				<Field name={`options[${index}].required`}>
-					{(field) => <CheckboxField field={field} label="Required" />}
-				</Field>
-			)}
-			{INPUT_OPTIONS.includes(option.type) && (
-				<Field mode="array" name={`options[${index}].choices`}>
+		<div className="flex flex-col gap-2 mb-8">
+			<Heading level={3}>{option.name}</Heading>
+			<div className="flex gap-2">
+				<Field name={`options[${index}].type`}>
 					{(field) => (
-						<CommandOptionChoicesEdit
-							Field={Field}
+						<LabeledElement className="w-64" label="Type">
+							<Select
+								onValueChange={(value) =>
+									field.handleChange(Number.parseInt(value, 10))
+								}
+								value={field.state.value.toString()}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="Type" />
+								</SelectTrigger>
+								<SelectContent>
+									{getAllEnumValues(ApplicationCommandOptionType).map(
+										(type) => (
+											<SelectItem key={type} value={type.toString()}>
+												{ApplicationCommandOptionType[type]}
+											</SelectItem>
+										),
+									)}
+								</SelectContent>
+							</Select>
+						</LabeledElement>
+					)}
+				</Field>
+				<Field name={`options[${index}].name`}>
+					{(field) => (
+						<TextInputField
+							className="w-full"
 							field={field}
-							prefix={`options[${index}].choices`}
+							label="Name"
+							type="text"
 						/>
 					)}
 				</Field>
-			)}
+			</div>
+			<Field name={`options[${index}].description`}>
+				{(field) => <TextareaField field={field} label="Description" />}
+			</Field>
 			{option.type === ApplicationCommandOptionType.Channel && (
 				<Field name={`options[${index}].channel_types`}>
 					{(field) => (
@@ -149,28 +148,37 @@ function CommandOptionEdit({ Field, index, option }: CommandOptionEditProps) {
 					)}
 				</Field>
 			)}
-			{option.type === ApplicationCommandOptionType.String && (
-				<Field name={`options[${index}].min_length`}>
-					{(field) => (
-						<TextInputField
-							field={field}
-							inputMode="numeric"
-							label="Min Length"
-							type="number"
-						/>
-					)}
-				</Field>
-			)}
-			{option.type === ApplicationCommandOptionType.String && (
-				<Field name={`options[${index}].max_length`}>
-					{(field) => (
-						<TextInputField
-							field={field}
-							inputMode="numeric"
-							label="Max Length"
-							type="number"
-						/>
-					)}
+			<div className="flex gap-2">
+				{option.type === ApplicationCommandOptionType.String && (
+					<Field name={`options[${index}].min_length`}>
+						{(field) => (
+							<TextInputField
+								className="grow"
+								field={field}
+								inputMode="numeric"
+								label="Min Length"
+								type="number"
+							/>
+						)}
+					</Field>
+				)}
+				{option.type === ApplicationCommandOptionType.String && (
+					<Field name={`options[${index}].max_length`}>
+						{(field) => (
+							<TextInputField
+								className="grow"
+								field={field}
+								inputMode="numeric"
+								label="Max Length"
+								type="number"
+							/>
+						)}
+					</Field>
+				)}
+			</div>
+			{!SUB_OPTIONS.includes(option.type) && (
+				<Field name={`options[${index}].required`}>
+					{(field) => <CheckboxField field={field} label="Required" />}
 				</Field>
 			)}
 			{INPUT_OPTIONS.includes(option.type) && (
@@ -178,7 +186,23 @@ function CommandOptionEdit({ Field, index, option }: CommandOptionEditProps) {
 					{(field) => <CheckboxField field={field} label="Autocomplete" />}
 				</Field>
 			)}
-		</>
+			{INPUT_OPTIONS.includes(option.type) && (
+				<section>
+					<Heading level={4}>Choices</Heading>
+					<div className="flex flex-col gap-2">
+						<Field mode="array" name={`options[${index}].choices`}>
+							{(field) => (
+								<CommandOptionChoicesEdit
+									Field={Field}
+									field={field}
+									prefix={`options[${index}].choices`}
+								/>
+							)}
+						</Field>
+					</div>
+				</section>
+			)}
+		</div>
 	);
 }
 
@@ -196,15 +220,31 @@ function CommandOptionChoicesEdit({
 	return (
 		<>
 			{(field.state.value as any[] | undefined)?.map((_, index) => (
-				<Fragment key={index}>
+				<div className="flex gap-2 items-end" key={index}>
 					<Field name={`${prefix}[${index}].name`}>
-						{(field) => <TextInputField field={field} label="Name" />}
+						{(field) => (
+							<TextInputField className="grow" field={field} label="Name" />
+						)}
 					</Field>
 					<Field name={`${prefix}[${index}].value`}>
-						{(field) => <TextInputField field={field} label="Value" />}
+						{(field) => (
+							<TextInputField className="grow" field={field} label="Value" />
+						)}
 					</Field>
-				</Fragment>
+					<Button
+						onClick={() => void field.removeValue(index)}
+						type="button"
+						variant="destructive"
+					>
+						Remove
+					</Button>
+				</div>
 			))}
+			<div>
+				<Button onClick={() => field.pushValue({})} type="button">
+					Add
+				</Button>
+			</div>
 		</>
 	);
 }

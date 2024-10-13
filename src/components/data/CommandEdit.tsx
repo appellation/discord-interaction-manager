@@ -16,7 +16,7 @@ export default function CommandEdit({
 	});
 
 	return (
-		<form>
+		<form className="flex flex-col gap-2">
 			<Field name="name">
 				{(field) => <TextInputField field={field} label="Name" type="text" />}
 			</Field>
@@ -53,10 +53,12 @@ export default function CommandEdit({
 			<Field name="nsfw">
 				{(field) => <CheckboxField field={field} label="NSFW" />}
 			</Field>
-			<Heading level={2}>Options</Heading>
-			<Field name="options">
-				{(field) => <CommandOptionsEdit Field={Field} field={field} />}
-			</Field>
+			<section>
+				<Heading level={2}>Options</Heading>
+				<Field name="options">
+					{(field) => <CommandOptionsEdit Field={Field} field={field} />}
+				</Field>
+			</section>
 		</form>
 	);
 }

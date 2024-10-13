@@ -29,8 +29,10 @@ export enum LabelPosition {
 function LabeledElement({
 	label,
 	position = LabelPosition.After,
+	className,
 	children,
 }: React.PropsWithChildren<{
+	readonly className?: string;
 	readonly label: string;
 	readonly position?: LabelPosition;
 }>) {
@@ -38,11 +40,11 @@ function LabeledElement({
 	const content = <Slot id={id}>{children}</Slot>;
 
 	return (
-		<>
+		<div className={className}>
 			{position === LabelPosition.Before && content}
 			<Label htmlFor={id}>{label}</Label>
 			{position === LabelPosition.After && content}
-		</>
+		</div>
 	);
 }
 

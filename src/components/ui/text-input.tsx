@@ -1,41 +1,28 @@
 import type { ReadonlySignal } from "@preact/signals-react";
 import type { FieldApi, Updater } from "@tanstack/react-form";
-import type { FocusEventHandler } from "react";
-import { forwardRef, useId } from "react";
+import { forwardRef } from "react";
 import type { InputProps } from "./input";
 import { Input } from "./input";
-import { Label } from "./label";
+import { LabeledElement } from "./label";
 
 type TextInputProps = InputProps & {
+	readonly className?: string;
 	readonly error?: ReadonlySignal<string>;
-	readonly label?: string;
+	readonly label: string;
 	readonly onChange: Updater<string, void>;
 };
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
-	({ label, value, error, onChange, ...props }, ref) => {
-		const { required } = props;
-		const id = useId();
-		return (
-			<div>
-				{label && (
-					<Label htmlFor={id}>
-						{label} {required && <span>*</span>}
-					</Label>
-				)}
-				<Input
-					{...props}
-					aria-errormessage={`${id}-error`}
-					aria-invalid={Boolean(error?.value)}
-					id={id}
-					onChange={(event) => onChange?.(event.target.value)}
-					ref={ref}
-					value={value ?? ""}
-				/>
-				{error?.value && <div id={`${id}-error`}>{error}</div>}
-			</div>
-		);
-	},
+	({ label, value, error, onChange, className, ...props }, ref) => (
+		<LabeledElement className={className} label={label}>
+			<Input
+				{...props}
+				onChange={(event) => onChange?.(event.target.value)}
+				ref={ref}
+				value={value ?? ""}
+			/>
+		</LabeledElement>
+	),
 );
 
 export type TextInputFieldProps = Omit<
