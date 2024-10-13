@@ -1,4 +1,4 @@
-import type { DeepKeys, FieldApi, FieldComponent } from "@tanstack/react-form";
+import type { FieldApi, FieldComponent } from "@tanstack/react-form";
 import type {
 	APIApplicationCommand,
 	APIApplicationCommandOption,
@@ -8,6 +8,7 @@ import {
 	ChannelType,
 } from "discord-api-types/v10";
 import { getAllEnumValues } from "enum-for";
+import { Fragment } from "react";
 import { CheckboxField, CheckboxFieldList } from "../ui/checkbox";
 import { LabeledElement } from "../ui/label";
 import {
@@ -27,6 +28,11 @@ const SUB_OPTIONS = [
 
 const INPUT_OPTIONS = [
 	ApplicationCommandOptionType.String,
+	ApplicationCommandOptionType.Number,
+	ApplicationCommandOptionType.Integer,
+];
+
+const NUMBER_OPTIONS = [
 	ApplicationCommandOptionType.Number,
 	ApplicationCommandOptionType.Integer,
 ];
@@ -97,6 +103,17 @@ function CommandOptionEdit({ Field, index, option }: CommandOptionEditProps) {
 					{(field) => <CheckboxField field={field} label="Required" />}
 				</Field>
 			)}
+			{INPUT_OPTIONS.includes(option.type) && (
+				<Field mode="array" name={`options[${index}].choices`}>
+					{(field) => (
+						<CommandOptionChoicesEdit
+							Field={Field}
+							field={field}
+							prefix={`options[${index}].choices`}
+						/>
+					)}
+				</Field>
+			)}
 			{option.type === ApplicationCommandOptionType.Channel && (
 				<Field name={`options[${index}].channel_types`}>
 					{(field) => (
@@ -108,6 +125,86 @@ function CommandOptionEdit({ Field, index, option }: CommandOptionEditProps) {
 					)}
 				</Field>
 			)}
+			{NUMBER_OPTIONS.includes(option.type) && (
+				<Field name={`options[${index}].min_value`}>
+					{(field) => (
+						<TextInputField
+							field={field}
+							inputMode="numeric"
+							label="Min Value"
+							type="number"
+						/>
+					)}
+				</Field>
+			)}
+			{NUMBER_OPTIONS.includes(option.type) && (
+				<Field name={`options[${index}].max_value`}>
+					{(field) => (
+						<TextInputField
+							field={field}
+							inputMode="numeric"
+							label="Max Value"
+							type="number"
+						/>
+					)}
+				</Field>
+			)}
+			{option.type === ApplicationCommandOptionType.String && (
+				<Field name={`options[${index}].min_length`}>
+					{(field) => (
+						<TextInputField
+							field={field}
+							inputMode="numeric"
+							label="Min Length"
+							type="number"
+						/>
+					)}
+				</Field>
+			)}
+			{option.type === ApplicationCommandOptionType.String && (
+				<Field name={`options[${index}].max_length`}>
+					{(field) => (
+						<TextInputField
+							field={field}
+							inputMode="numeric"
+							label="Max Length"
+							type="number"
+						/>
+					)}
+				</Field>
+			)}
+			{INPUT_OPTIONS.includes(option.type) && (
+				<Field name={`options[${index}].autocomplete`}>
+					{(field) => <CheckboxField field={field} label="Autocomplete" />}
+				</Field>
+			)}
+		</>
+	);
+}
+
+type CommandOptionChoicesEditProps = {
+	readonly Field: FieldComponent<any>;
+	readonly field: FieldApi<any, any>;
+	readonly prefix: string;
+};
+
+function CommandOptionChoicesEdit({
+	Field,
+	prefix,
+	field,
+}: CommandOptionChoicesEditProps) {
+	return (
+		<>
+			{(field.state.value as any[] | undefined)?.map((_, index) => (
+				<Fragment key={index}>
+					<Field name={`${prefix}[${index}].name`}>
+						{(field) => <TextInputField field={field} label="Name" />}
+					</Field>
+					<Field name={`${prefix}[${index}].value`}>
+						{(field) => <TextInputField field={field} label="Value" />}
+					</Field>
+				</Fragment>
+			))}
 		</>
 	);
 }

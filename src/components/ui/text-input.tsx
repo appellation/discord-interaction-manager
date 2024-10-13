@@ -9,13 +9,7 @@ import { Label } from "./label";
 type TextInputProps = InputProps & {
 	readonly error?: ReadonlySignal<string>;
 	readonly label?: string;
-	readonly name: string;
-	readonly onBlur: FocusEventHandler<HTMLInputElement>;
 	readonly onChange: Updater<string, void>;
-	readonly placeholder?: string;
-	readonly required?: boolean;
-	readonly type: "date" | "email" | "password" | "tel" | "text" | "url";
-	readonly value?: string;
 };
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
