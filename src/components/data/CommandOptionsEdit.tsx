@@ -8,7 +8,7 @@ import {
 	ChannelType,
 } from "discord-api-types/v10";
 import { getAllEnumValues } from "enum-for";
-import { Fragment } from "react";
+import { Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { CheckboxField, CheckboxFieldList } from "../ui/checkbox";
@@ -54,6 +54,7 @@ export default function CommandOptionsEdit({
 			{field.state.value?.map((option, index) => (
 				<CommandOptionEdit
 					Field={Field}
+					field={field}
 					index={index}
 					key={index}
 					option={option}
@@ -65,15 +66,29 @@ export default function CommandOptionsEdit({
 
 type CommandOptionEditProps = {
 	readonly Field: FieldComponent<APIApplicationCommand>;
+	readonly field: FieldApi<APIApplicationCommand, "options">;
 	readonly index: number;
 	readonly option: APIApplicationCommandOption;
 };
 
-function CommandOptionEdit({ Field, index, option }: CommandOptionEditProps) {
+function CommandOptionEdit({
+	Field,
+	field,
+	index,
+	option,
+}: CommandOptionEditProps) {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>{option.name}</CardTitle>
+				<CardTitle className="flex items-baseline">
+					<span className="grow">{option.name}</span>
+					<Button
+						onClick={() => void field.removeValue(index)}
+						variant="destructive"
+					>
+						<Trash2 size={18} />
+					</Button>
+				</CardTitle>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-2">
 				<div className="flex gap-2">
@@ -239,11 +254,12 @@ function CommandOptionChoicesEdit({
 						)}
 					</Field>
 					<Button
+						aria-description="Remove"
 						onClick={() => void field.removeValue(index)}
 						type="button"
 						variant="destructive"
 					>
-						Remove
+						<Trash2 size={18} />
 					</Button>
 				</div>
 			))}

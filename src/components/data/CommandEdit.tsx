@@ -2,8 +2,10 @@ import { useForm } from "@tanstack/react-form";
 import {
 	ApplicationCommandType,
 	type APIApplicationCommand,
+	ApplicationCommandOptionType,
 } from "discord-api-types/v10";
 import { getAllEnumValues } from "enum-for";
+import { Button } from "../ui/button";
 import { CheckboxField } from "../ui/checkbox";
 import { LabeledElement } from "../ui/label";
 import {
@@ -98,12 +100,26 @@ export default function CommandEdit({
 			<Field name="nsfw">
 				{(field) => <CheckboxField field={field} label="NSFW" />}
 			</Field>
-			<section>
-				<Heading className="mb-4" level={2}>
-					Options
-				</Heading>
-				<Field name="options">
-					{(field) => <CommandOptionsEdit Field={Field} field={field} />}
+			<section className="flex flex-col gap-4">
+				<Heading level={2}>Options</Heading>
+				<Field mode="array" name="options">
+					{(field) => (
+						<>
+							<CommandOptionsEdit Field={Field} field={field} />
+							<Button
+								onClick={() =>
+									field.pushValue({
+										type: ApplicationCommandOptionType.String,
+										name: "",
+										description: "",
+									})
+								}
+								type="button"
+							>
+								Add
+							</Button>
+						</>
+					)}
 				</Field>
 			</section>
 		</form>
