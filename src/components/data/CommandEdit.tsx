@@ -37,7 +37,7 @@ export default function CommandEdit({
 								onValueChange={(value) =>
 									field.handleChange(Number.parseInt(value, 10))
 								}
-								value={field.state.value.toString()}
+								value={field.state.value?.toString()}
 							>
 								<SelectTrigger>
 									<SelectValue placeholder="Type" />
@@ -57,6 +57,7 @@ export default function CommandEdit({
 					{(field) => (
 						<TextInputField
 							className="grow"
+							data-1pignore
 							field={field}
 							label="Name"
 							type="text"
@@ -98,7 +99,9 @@ export default function CommandEdit({
 				{(field) => <CheckboxField field={field} label="NSFW" />}
 			</Field>
 			<section>
-				<Heading level={2}>Options</Heading>
+				<Heading className="mb-4" level={2}>
+					Options
+				</Heading>
 				<Field name="options">
 					{(field) => <CommandOptionsEdit Field={Field} field={field} />}
 				</Field>
