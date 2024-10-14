@@ -5,6 +5,8 @@ import {
 	ApplicationCommandOptionType,
 } from "discord-api-types/v10";
 import { getAllEnumValues } from "enum-for";
+import type { FormEvent } from "react";
+import { useCallback } from "react";
 import { Button } from "../ui/button";
 import { CheckboxField } from "../ui/checkbox";
 import { LabeledElement } from "../ui/label";
@@ -15,6 +17,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "../ui/select";
+import { Separator } from "../ui/separator";
 import { TextInputField } from "../ui/text-input";
 import { TextareaField } from "../ui/textarea";
 import { Heading } from "../ui/typography";
@@ -22,15 +25,26 @@ import CommandOptionsEdit from "./CommandOptionsEdit";
 
 export default function CommandEdit({
 	data,
+	onSubmit,
 }: {
 	readonly data?: APIApplicationCommand;
+	onSubmit(this: void, props: { value: APIApplicationCommand }): void;
 }) {
-	const { Field } = useForm({
+	const { Field, handleSubmit } = useForm({
 		defaultValues: data,
+		onSubmit,
 	});
 
+	const submitHandler = useCallback(
+		(event: FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+			void handleSubmit();
+		},
+		[handleSubmit],
+	);
+
 	return (
-		<form className="flex flex-col gap-2">
+		<form className="flex flex-col gap-2" onSubmit={submitHandler}>
 			<div className="flex gap-2">
 				<Field name="type">
 					{(field) => (
@@ -115,6 +129,7 @@ export default function CommandEdit({
 									})
 								}
 								type="button"
+								variant="secondary"
 							>
 								Add
 							</Button>
@@ -122,6 +137,10 @@ export default function CommandEdit({
 					)}
 				</Field>
 			</section>
+			<Separator />
+			<div className="flex gap-2 justify-end">
+				<Button type="submit">Save</Button>
+			</div>
 		</form>
 	);
 }

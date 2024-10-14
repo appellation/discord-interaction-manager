@@ -245,7 +245,12 @@ function CommandOptionChoicesEdit({
 				<div className="flex gap-2 items-end" key={index}>
 					<Field name={`${prefix}[${index}].name`}>
 						{(field) => (
-							<TextInputField className="grow" field={field} label="Name" />
+							<TextInputField
+								className="grow"
+								data-1pignore
+								field={field}
+								label="Name"
+							/>
 						)}
 					</Field>
 					<Field name={`${prefix}[${index}].value`}>
@@ -264,7 +269,11 @@ function CommandOptionChoicesEdit({
 				</div>
 			))}
 			<div>
-				<Button onClick={() => field.pushValue({})} type="button">
+				<Button
+					onClick={() => field.pushValue({})}
+					type="button"
+					variant="secondary"
+				>
 					Add
 				</Button>
 			</div>

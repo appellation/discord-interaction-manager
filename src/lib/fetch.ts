@@ -5,18 +5,33 @@ import { getApps, useCurrentApp } from "./state";
 
 async function defaultQueryFn({ queryKey, signal }: QueryFunctionContext) {
 	const [id, ...rest] = queryKey;
+	const path = rest.join("/");
 
+	return doFetch(id as string, path, null, { signal });
+}
+
+export async function doFetch(
+	id: string,
+	path: string,
+	body?: any,
+	options?: RequestInit,
+) {
 	const apps = getApps();
 	const token = id ? apps?.[id as string].token : null;
+
 	const headers = new Headers();
 	if (token) {
 		headers.set("authorization", `Bearer ${token}`);
 	}
 
-	const path = rest.join("/");
+	if (body != null) {
+		headers.set("content-type", "application/json");
+	}
+
 	const res = await fetch(`https://discord.com/api/v10/${path}`, {
+		...options,
 		headers,
-		signal,
+		body: body == null ? undefined : JSON.stringify(body),
 	});
 
 	return res.json();

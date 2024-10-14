@@ -1,8 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import type { RESTGetAPIApplicationCommandResult } from "discord-api-types/v10";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import type {
+	APIApplicationCommand,
+	RESTGetAPIApplicationCommandResult,
+} from "discord-api-types/v10";
 import { useParams } from "wouter";
 import CommandEdit from "~/components/data/CommandEdit";
-import { useQueryKey } from "~/lib/fetch";
+import { doFetch, useQueryKey } from "~/lib/fetch";
 import { useCurrentApp } from "~/lib/state";
 
 export default function EditCommand() {
@@ -18,10 +21,24 @@ export default function EditCommand() {
 		queryKey,
 		enabled: currentApp != null,
 	});
+	const { mutate } = useMutation<
+		unknown,
+		Error,
+		{ value: APIApplicationCommand }
+	>({
+		async mutationFn({ value }) {
+			await doFetch(
+				currentApp!,
+				`/applications/${currentApp}/commands/${commandId}`,
+				value,
+				{ method: "PATCH" },
+			);
+		},
+	});
 
 	return (
-		<main className="container mx-auto">
-			<CommandEdit data={data} />
+		<main className="container mx-auto mb-16">
+			<CommandEdit data={data} onSubmit={mutate} />
 		</main>
 	);
 }
