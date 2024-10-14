@@ -5,7 +5,7 @@ import type {
 } from "discord-api-types/v10";
 import { useParams } from "wouter";
 import CommandEdit from "~/components/data/CommandEdit";
-import { doFetch, useQueryKey } from "~/lib/fetch";
+import { doFetch, queryClient, useQueryKey } from "~/lib/fetch";
 import { useCurrentApp } from "~/lib/state";
 
 export default function EditCommand() {
@@ -22,16 +22,24 @@ export default function EditCommand() {
 		enabled: currentApp != null,
 	});
 	const { mutate } = useMutation<
-		unknown,
+		APIApplicationCommand,
 		Error,
 		{ value: APIApplicationCommand }
 	>({
 		async mutationFn({ value }) {
-			await doFetch(
+			const command: APIApplicationCommand = await doFetch(
 				currentApp!,
 				`/applications/${currentApp}/commands/${commandId}`,
 				value,
 				{ method: "PATCH" },
+			);
+
+			return command;
+		},
+		onSuccess(data, variables, context) {
+			queryClient.setQueryData(
+				["applications", currentApp, "commands", commandId],
+				data,
 			);
 		},
 	});
