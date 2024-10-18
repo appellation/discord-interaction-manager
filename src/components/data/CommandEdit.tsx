@@ -3,12 +3,14 @@ import {
 	ApplicationCommandType,
 	type APIApplicationCommand,
 	ApplicationCommandOptionType,
+	ApplicationIntegrationType,
+	InteractionContextType,
 } from "discord-api-types/v10";
 import { getAllEnumValues } from "enum-for";
 import type { FormEvent } from "react";
 import { useCallback } from "react";
 import { Button } from "../ui/button";
-import { CheckboxField } from "../ui/checkbox";
+import { CheckboxField, CheckboxFieldList } from "../ui/checkbox";
 import { LabeledElement } from "../ui/label";
 import {
 	Select,
@@ -113,6 +115,24 @@ export default function CommandEdit({
 			</Field>
 			<Field name="nsfw">
 				{(field) => <CheckboxField field={field} label="NSFW" />}
+			</Field>
+			<Field mode="array" name="integration_types">
+				{(field) => (
+					<CheckboxFieldList
+						field={field}
+						label="Integration Types"
+						options={ApplicationIntegrationType}
+					/>
+				)}
+			</Field>
+			<Field name="contexts">
+				{(field) => (
+					<CheckboxFieldList
+						field={field}
+						label="Contexts"
+						options={InteractionContextType}
+					/>
+				)}
 			</Field>
 			<section className="flex flex-col gap-4">
 				<Heading level={2}>Options</Heading>

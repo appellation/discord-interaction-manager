@@ -75,25 +75,25 @@ const CheckboxFieldList = ({
 				{enumValues.map((option) => {
 					const index = field.state.value?.indexOf(option) ?? -1;
 					return (
-						<div className="flex items-center gap-2" key={option}>
-							<LabeledElement
-								label={options[option]}
-								position={LabelPosition.Before}
-							>
-								<Checkbox
-									checked={index >= 0}
-									name={field.name}
-									onBlur={field.handleBlur}
-									onCheckedChange={(checked) => {
-										if (checked === true) {
-											field.pushValue(option);
-										} else if (checked === false) {
-											void field.removeValue(index);
-										}
-									}}
-								/>
-							</LabeledElement>
-						</div>
+						<LabeledElement
+							className="flex items-center gap-2"
+							key={option}
+							label={options[option]}
+							position={LabelPosition.Before}
+						>
+							<Checkbox
+								checked={index >= 0}
+								name={field.name}
+								onBlur={field.handleBlur}
+								onCheckedChange={(checked) => {
+									if (checked === true) {
+										field.pushValue(option);
+									} else if (checked === false) {
+										void field.removeValue(index);
+									}
+								}}
+							/>
+						</LabeledElement>
 					);
 				})}
 			</fieldset>
