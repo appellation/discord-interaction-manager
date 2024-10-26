@@ -1,7 +1,6 @@
-import type { FormApi } from "@tanstack/react-form";
-import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import type { RESTPostOAuth2ClientCredentialsResult } from "discord-api-types/v10";
-import { useCallback, useState } from "react";
+import { useCallback, type FormEvent } from "react";
 import { useApps, useCurrentApp } from "~/lib/state";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
@@ -11,9 +10,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "./ui/dialog";
-import { TextInputField } from "./ui/text-input";
+import { Input } from "./ui/input";
+import { LabeledElement } from "./ui/label";
 
-type LoginForm = {
+type LoginFormData = {
 	clientId: string;
 	clientSecret: string;
 };
@@ -26,10 +26,8 @@ export default function LoginForm({
 	const [, setApps] = useApps();
 	const [, setCurrentApp] = useCurrentApp();
 
-	const onSubmit = useCallback(
-		async ({ value }: { formApi: FormApi<LoginForm>; value: LoginForm }) => {
-			const { clientId, clientSecret } = value;
-
+	const { mutate, error, isPending } = useMutation({
+		async onMutate({ clientId, clientSecret }: LoginFormData) {
 			const data = new URLSearchParams();
 			data.set("grant_type", "client_credentials");
 			data.set("scope", "applications.commands.update");
@@ -56,32 +54,25 @@ export default function LoginForm({
 				},
 			}));
 			setCurrentApp(clientId);
+			onSuccess();
 		},
-		[setApps, setCurrentApp],
-	);
-
-	const {
-		Field,
-		handleSubmit,
-		state: { canSubmit, isSubmitting },
-	} = useForm<LoginForm>({ onSubmit });
-	const [submitError, setSubmitError] = useState<Error>();
+	});
 
 	const handleFormSubmit = useCallback(
-		async (event: React.FormEvent<HTMLFormElement>) => {
+		(event: FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
-			try {
-				await handleSubmit();
-				onSuccess();
-			} catch (error) {
-				setSubmitError(error as Error);
-			}
+
+			const data = new FormData(event.currentTarget);
+			mutate({
+				clientId: data.get("clientId") as string,
+				clientSecret: data.get("clientSecret") as string,
+			});
 		},
-		[handleSubmit, onSuccess],
+		[mutate],
 	);
 
 	return (
-		<form onSubmit={async (event) => handleFormSubmit(event)}>
+		<form onSubmit={handleFormSubmit}>
 			<DialogHeader>
 				<DialogTitle>Login</DialogTitle>
 				<DialogDescription>
@@ -89,35 +80,21 @@ export default function LoginForm({
 				</DialogDescription>
 			</DialogHeader>
 			<div className="my-4">
-				{submitError ? (
+				{error ? (
 					<Alert variant="destructive">
 						<AlertTitle>Error</AlertTitle>
-						<AlertDescription>{submitError?.message}</AlertDescription>
+						<AlertDescription>{error?.message}</AlertDescription>
 					</Alert>
 				) : null}
-				<Field name="clientId">
-					{(field) => (
-						<TextInputField
-							field={field}
-							label="Client ID"
-							required
-							type="text"
-						/>
-					)}
-				</Field>
-				<Field name="clientSecret">
-					{(field) => (
-						<TextInputField
-							field={field}
-							label="Client Secret"
-							required
-							type="password"
-						/>
-					)}
-				</Field>
+				<LabeledElement label="Client ID">
+					<Input name="clientId" required type="text" />
+				</LabeledElement>
+				<LabeledElement label="Client Secret">
+					<Input name="clientSecret" required type="password" />
+				</LabeledElement>
 			</div>
 			<DialogFooter>
-				<Button disabled={!canSubmit || isSubmitting} type="submit">
+				<Button disabled={isPending} type="submit">
 					Login
 				</Button>
 			</DialogFooter>
