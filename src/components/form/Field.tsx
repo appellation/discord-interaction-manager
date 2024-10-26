@@ -136,7 +136,10 @@ export function CheckboxFieldList({
 		() => [...new Set(getAllEnumValues(options))],
 		[options],
 	);
-	const [values, setValues] = useValueByName<any, number[]>(form, name);
+	const [values, setValues] = useValueByName<any, number[] | undefined>(
+		form,
+		name,
+	);
 
 	return (
 		<fieldset className="grid grid-flow-dense grid-cols-3 gap-2">
@@ -148,14 +151,14 @@ export function CheckboxFieldList({
 					position={LabelPosition.Before}
 				>
 					<Checkbox
-						checked={values.includes(option)}
+						checked={values?.includes(option)}
 						name={`${name}[${option}]`}
 						// onBlur={field.handleBlur}
 						onCheckedChange={(checked) => {
 							if (checked === true) {
-								setValues([...values, option]);
+								setValues([...(values ?? []), option]);
 							} else if (checked === false) {
-								setValues(values.filter((value) => value !== option));
+								setValues(values?.filter((value) => value !== option));
 							}
 						}}
 					/>
