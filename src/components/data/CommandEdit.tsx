@@ -4,7 +4,7 @@ import {
 	ApplicationIntegrationType,
 	InteractionContextType,
 } from "discord-api-types/v10";
-import { number, object, string } from "yup";
+import { array, boolean, number, object, string } from "yup";
 import TextareaField, {
 	CheckboxField,
 	CheckboxFieldList,
@@ -14,11 +14,27 @@ import TextareaField, {
 import { useForm } from "../form/context";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import { Heading } from "../ui/typography";
+import CommandOptionsEdit from "./CommandOptionsEdit";
 
 const schema = object({
 	type: number(),
 	name: string().min(1),
 	default_member_permissions: number().nullable(),
+	options: array(
+		object({
+			type: number(),
+			name: string(),
+			description: string(),
+			required: boolean().optional(),
+			choices: array(object({ name: string(), value: string() })).optional(),
+			channel_types: array(number()).optional(),
+			min_value: number().optional(),
+			max_value: number().optional(),
+			min_length: number().optional(),
+			max_length: number().optional(),
+		}),
+	),
 });
 
 export default function CommandEdit({
@@ -71,39 +87,22 @@ export default function CommandEdit({
 				name="default_permission"
 			/>
 			<CheckboxField form={form} label="NSFW" name="nsfw" />
+			<Heading level={2}>Integration Types</Heading>
 			<CheckboxFieldList
 				form={form}
 				name="integration_types"
 				options={ApplicationIntegrationType}
 			/>
+			<Heading level={2}>Contexts</Heading>
 			<CheckboxFieldList
 				form={form}
 				name="contexts"
 				options={InteractionContextType}
 			/>
-			{/* <section className="flex flex-col gap-4">
+			<section className="flex flex-col gap-4">
 				<Heading level={2}>Options</Heading>
-				<Field mode="array" name="options">
-					{(field) => (
-						<>
-							<CommandOptionsEdit Field={Field} field={field} />
-							<Button
-								onClick={() =>
-									field.pushValue({
-										type: ApplicationCommandOptionType.String,
-										name: "",
-										description: "",
-									})
-								}
-								type="button"
-								variant="secondary"
-							>
-								Add
-							</Button>
-						</>
-					)}
-				</Field>
-			</section> */}
+				<CommandOptionsEdit form={form} name="options" />
+			</section>
 			<Separator />
 			<div className="flex gap-2 justify-end">
 				<Button type="submit">Save</Button>

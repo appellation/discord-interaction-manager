@@ -1,27 +1,23 @@
-import type { FieldApi, FieldComponent } from "@tanstack/react-form";
 import type {
 	APIApplicationCommand,
 	APIApplicationCommandOption,
+	APIApplicationCommandOptionChoice,
 } from "discord-api-types/v10";
 import {
 	ApplicationCommandOptionType,
 	ChannelType,
 } from "discord-api-types/v10";
-import { getAllEnumValues } from "enum-for";
 import { Trash2 } from "lucide-react";
+import { useCallback } from "react";
+import TextareaField, {
+	CheckboxField,
+	CheckboxFieldList,
+	SelectField,
+	TextInputField,
+} from "../form/Field";
+import { useValueByName, type Form } from "../form/context";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { CheckboxField, CheckboxFieldList } from "../ui/checkbox";
-import { LabeledElement } from "../ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "../ui/select";
-import { TextInputField } from "../ui/text-input";
-import { TextareaField } from "../ui/textarea";
 import { Heading } from "../ui/typography";
 
 const SUB_OPTIONS = [
@@ -41,23 +37,36 @@ const NUMBER_OPTIONS = [
 ];
 
 export type CommandOptionsEditProps = {
-	readonly Field: FieldComponent<APIApplicationCommand>;
-	readonly field: FieldApi<APIApplicationCommand, "options">;
+	readonly form: Form<APIApplicationCommand>;
+	readonly name: string;
 };
 
 export default function CommandOptionsEdit({
-	field,
-	Field,
+	form,
+	name,
 }: CommandOptionsEditProps) {
+	const [options, setOptions] = useValueByName<
+		any,
+		APIApplicationCommand["options"]
+	>(form, name);
+
+	const removeValue = useCallback(
+		(index: number) => {
+			if (options) setOptions(options.splice(index, 1));
+		},
+		[options, setOptions],
+	);
+
 	return (
 		<div className="flex flex-col gap-4">
-			{field.state.value?.map((option, index) => (
+			{options?.map((option, index) => (
 				<CommandOptionEdit
-					Field={Field}
-					field={field}
+					form={form}
 					index={index}
 					key={index}
+					name={name}
 					option={option}
+					removeValue={removeValue}
 				/>
 			))}
 		</div>
@@ -65,25 +74,29 @@ export default function CommandOptionsEdit({
 }
 
 type CommandOptionEditProps = {
-	readonly Field: FieldComponent<APIApplicationCommand>;
-	readonly field: FieldApi<APIApplicationCommand, "options">;
+	readonly form: Form<APIApplicationCommand>;
 	readonly index: number;
+	readonly name: string;
 	readonly option: APIApplicationCommandOption;
+	removeValue(this: void, index: number): void;
 };
 
 function CommandOptionEdit({
-	Field,
-	field,
+	form,
+	name,
 	index,
 	option,
+	removeValue,
 }: CommandOptionEditProps) {
+	const elementName = `${name}[${index}]`;
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle className="flex items-baseline">
 					<span className="grow">{option.name}</span>
 					<Button
-						onClick={() => void field.removeValue(index)}
+						aria-label="Remove option"
+						onClick={() => removeValue(index)}
 						variant="destructive"
 					>
 						<Trash2 size={18} />
@@ -92,135 +105,95 @@ function CommandOptionEdit({
 			</CardHeader>
 			<CardContent className="flex flex-col gap-2">
 				<div className="flex gap-2">
-					<Field name={`options[${index}].type`}>
-						{(field) => (
-							<LabeledElement className="w-64" label="Type">
-								<Select
-									onValueChange={(value) =>
-										field.handleChange(Number.parseInt(value, 10))
-									}
-									value={field.state.value.toString()}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Type" />
-									</SelectTrigger>
-									<SelectContent>
-										{getAllEnumValues(ApplicationCommandOptionType).map(
-											(type) => (
-												<SelectItem key={type} value={type.toString()}>
-													{ApplicationCommandOptionType[type]}
-												</SelectItem>
-											),
-										)}
-									</SelectContent>
-								</Select>
-							</LabeledElement>
-						)}
-					</Field>
-					<Field name={`options[${index}].name`}>
-						{(field) => (
-							<TextInputField
-								className="w-full"
-								data-1pignore
-								field={field}
-								label="Name"
-								type="text"
-							/>
-						)}
-					</Field>
+					<SelectField
+						form={form}
+						label="Type"
+						name={`${elementName}.type`}
+						options={ApplicationCommandOptionType}
+					/>
+
+					<TextInputField
+						className="w-full"
+						data-1pignore
+						form={form}
+						label="Name"
+						name={`${elementName}.name`}
+						type="text"
+					/>
 				</div>
-				<Field name={`options[${index}].description`}>
-					{(field) => <TextareaField field={field} label="Description" />}
-				</Field>
+				<TextareaField
+					form={form}
+					label="Description"
+					name={`${elementName}.description`}
+				/>
 				{option.type === ApplicationCommandOptionType.Channel && (
-					<Field name={`options[${index}].channel_types`}>
-						{(field) => (
-							<CheckboxFieldList
-								field={field}
-								label="Channel Types"
-								options={ChannelType}
-							/>
-						)}
-					</Field>
+					<CheckboxFieldList
+						form={form}
+						name={`${elementName}.channel_types`}
+						options={ChannelType}
+					/>
 				)}
 				{NUMBER_OPTIONS.includes(option.type) && (
 					<div className="flex gap-2">
-						<Field name={`options[${index}].min_value`}>
-							{(field) => (
-								<TextInputField
-									className="grow"
-									field={field}
-									inputMode="numeric"
-									label="Min Value"
-									type="number"
-								/>
-							)}
-						</Field>
-						<Field name={`options[${index}].max_value`}>
-							{(field) => (
-								<TextInputField
-									className="grow"
-									field={field}
-									inputMode="numeric"
-									label="Max Value"
-									type="number"
-								/>
-							)}
-						</Field>
+						<TextInputField
+							className="grow"
+							form={form}
+							inputMode="numeric"
+							label="Min Value"
+							name={`${elementName}.min_value`}
+							type="number"
+						/>
+						<TextInputField
+							className="grow"
+							form={form}
+							inputMode="numeric"
+							label="Max Value"
+							name={`${elementName}.max_value`}
+							type="number"
+						/>
 					</div>
 				)}
-				<div className="flex gap-2">
-					{option.type === ApplicationCommandOptionType.String && (
-						<Field name={`options[${index}].min_length`}>
-							{(field) => (
-								<TextInputField
-									className="grow"
-									field={field}
-									inputMode="numeric"
-									label="Min Length"
-									type="number"
-								/>
-							)}
-						</Field>
-					)}
-					{option.type === ApplicationCommandOptionType.String && (
-						<Field name={`options[${index}].max_length`}>
-							{(field) => (
-								<TextInputField
-									className="grow"
-									field={field}
-									inputMode="numeric"
-									label="Max Length"
-									type="number"
-								/>
-							)}
-						</Field>
-					)}
-				</div>
+				{option.type === ApplicationCommandOptionType.String && (
+					<div className="flex gap-2">
+						<TextInputField
+							className="grow"
+							form={form}
+							inputMode="numeric"
+							label="Min Length"
+							name={`${elementName}.min_length`}
+							type="number"
+						/>
+						<TextInputField
+							className="grow"
+							form={form}
+							inputMode="numeric"
+							label="Max Length"
+							name={`${elementName}.max_length`}
+							type="number"
+						/>
+					</div>
+				)}
 				{!SUB_OPTIONS.includes(option.type) && (
-					<Field name={`options[${index}].required`}>
-						{(field) => <CheckboxField field={field} label="Required" />}
-					</Field>
+					<CheckboxField
+						form={form}
+						label="Required"
+						name={`${elementName}.required`}
+					/>
 				)}
 				{INPUT_OPTIONS.includes(option.type) && (
-					<Field name={`options[${index}].autocomplete`}>
-						{(field) => <CheckboxField field={field} label="Autocomplete" />}
-					</Field>
+					<CheckboxField
+						form={form}
+						label="Autocomplete"
+						name={`${elementName}.autocomplete`}
+					/>
 				)}
 				{INPUT_OPTIONS.includes(option.type) && (
 					<section>
 						<Heading level={4}>Choices</Heading>
-						<div className="flex flex-col gap-2">
-							<Field mode="array" name={`options[${index}].choices`}>
-								{(field) => (
-									<CommandOptionChoicesEdit
-										Field={Field}
-										field={field}
-										prefix={`options[${index}].choices`}
-									/>
-								)}
-							</Field>
-						</div>
+						<CommandOptionChoicesEdit
+							form={form}
+							name={`${elementName}.choices`}
+						/>
 					</section>
 				)}
 			</CardContent>
@@ -229,54 +202,69 @@ function CommandOptionEdit({
 }
 
 type CommandOptionChoicesEditProps = {
-	readonly Field: FieldComponent<any>;
-	readonly field: FieldApi<any, any>;
-	readonly prefix: string;
+	readonly form: Form<APIApplicationCommand>;
+	readonly name: string;
 };
 
 function CommandOptionChoicesEdit({
-	Field,
-	prefix,
-	field,
+	form,
+	name,
 }: CommandOptionChoicesEditProps) {
+	const [choices, setChoices] = useValueByName<
+		any,
+		APIApplicationCommandOptionChoice<number | string>[] | undefined
+	>(form, name);
+
+	const removeValue = useCallback(
+		(index: number) => {
+			if (choices) {
+				choices.splice(index, 1);
+				setChoices([...choices]);
+			}
+		},
+		[choices, setChoices],
+	);
+
+	const addValue = useCallback(() => {
+		setChoices([...(choices ?? []), { name: "", value: "" }]);
+	}, [choices, setChoices]);
+
 	return (
-		<>
-			{(field.state.value as any[] | undefined)?.map((_, index) => (
-				<div className="flex gap-2 items-end" key={index}>
-					<Field name={`${prefix}[${index}].name`}>
-						{(field) => (
-							<TextInputField
-								className="grow"
-								data-1pignore
-								field={field}
-								label="Name"
-							/>
-						)}
-					</Field>
-					<Field name={`${prefix}[${index}].value`}>
-						{(field) => (
-							<TextInputField className="grow" field={field} label="Value" />
-						)}
-					</Field>
-					<Button
-						aria-description="Remove"
-						onClick={() => void field.removeValue(index)}
-						type="button"
-						variant="destructive"
-					>
-						<Trash2 size={18} />
-					</Button>
-				</div>
-			))}
+		<div className="flex flex-col gap-2">
+			{choices?.map((_, index) => {
+				const elementName = `${name}[${index}]`;
+
+				return (
+					<div className="flex gap-2 items-end" key={index}>
+						<TextInputField
+							className="grow"
+							data-1pignore
+							form={form}
+							label="Name"
+							name={`${elementName}.name`}
+						/>
+						<TextInputField
+							className="grow"
+							form={form}
+							label="Value"
+							name={`${elementName}.value`}
+						/>
+						<Button
+							aria-description="Remove"
+							onClick={() => removeValue(index)}
+							type="button"
+							variant="destructive"
+						>
+							<Trash2 size={18} />
+						</Button>
+					</div>
+				);
+			})}
 			<div>
-				<Button
-					onClick={() => field.pushValue({})}
-					type="button"
-					variant="secondary"
-				>
+				<Button onClick={() => addValue()} type="button" variant="secondary">
 					Add
 				</Button>
 			</div>
-		</>
+		</div>
 	);
 }
