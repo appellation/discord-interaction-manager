@@ -24,9 +24,9 @@ export default function EditCommand() {
 	const { mutate } = useMutation<
 		APIApplicationCommand,
 		Error,
-		{ value: APIApplicationCommand }
+		APIApplicationCommand
 	>({
-		async mutationFn({ value }) {
+		async mutationFn(value) {
 			const command: APIApplicationCommand = await doFetch(
 				currentApp!,
 				`/applications/${currentApp}/commands/${commandId}`,
@@ -46,7 +46,7 @@ export default function EditCommand() {
 
 	return (
 		<main className="container mx-auto mb-16">
-			<CommandEdit data={data} onSubmit={mutate} />
+			{data && <CommandEdit data={data} onSubmit={mutate} />}
 		</main>
 	);
 }

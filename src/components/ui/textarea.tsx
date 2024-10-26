@@ -1,7 +1,5 @@
-import type { FieldApi } from "@tanstack/react-form";
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import { Label, LabeledElement } from "./label";
 
 export type TextareaProps =
 	React.TextareaHTMLAttributes<HTMLTextAreaElement> & {};
@@ -20,21 +18,4 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 );
 Textarea.displayName = "Textarea";
 
-export type TextareaFieldProps = TextareaProps & {
-	readonly field: FieldApi<any, any, any, any, any>;
-	readonly label: string;
-};
-
-const TextareaField = ({ label, field, ...props }: TextareaFieldProps) => (
-	<LabeledElement label={label}>
-		<Textarea
-			{...props}
-			name={field.name}
-			onBlur={field.handleBlur}
-			onChange={(error) => field.handleChange(error.target.value)}
-			value={field.state.value}
-		/>
-	</LabeledElement>
-);
-
-export { Textarea, TextareaField };
+export { Textarea };

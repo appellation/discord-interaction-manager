@@ -1,23 +1,19 @@
 import {
 	common,
 	browser,
-	node,
 	typescript,
 	react,
-	edge,
 	prettier,
 } from "eslint-config-neon";
 
 export default [
 	{
-		ignores: ["**/dist/*", "eslint.config.js"],
+		ignores: ["**/dist/*", "node_modules", "eslint.config.js"],
 	},
 	...common,
 	...browser,
-	...node,
 	...typescript,
 	...react,
-	...edge,
 	...prettier,
 	{
 		settings: {

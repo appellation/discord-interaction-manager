@@ -1,11 +1,7 @@
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import type { FieldApi } from "@tanstack/react-form";
-import { getAllEnumValues } from "enum-for";
 import { Check } from "lucide-react";
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import { Label, LabelPosition, LabeledElement } from "./label";
-import { Heading } from "./typography";
 
 const Checkbox = React.forwardRef<
 	React.ElementRef<typeof CheckboxPrimitive.Root>,
@@ -28,77 +24,4 @@ const Checkbox = React.forwardRef<
 ));
 Checkbox.displayName = CheckboxPrimitive.Root.displayName;
 
-export type CheckboxFieldProps = Omit<
-	React.ComponentProps<typeof CheckboxPrimitive.Root>,
-	"checked" | "name" | "onBlur" | "onCheckedChange"
-> & {
-	readonly field: FieldApi<any, any>;
-	readonly label: string;
-};
-
-const CheckboxField = ({ label, field, ...props }: CheckboxFieldProps) => {
-	const id = React.useId();
-
-	return (
-		<div className="flex items-center gap-2">
-			<Label htmlFor={id}>{label}</Label>
-			<Checkbox
-				{...props}
-				checked={field.state.value}
-				id={id}
-				name={field.name}
-				onBlur={field.handleBlur}
-				onCheckedChange={(event) => event != null && field.handleChange(event)}
-			/>
-		</div>
-	);
-};
-
-export type CheckboxFieldListProps = {
-	readonly field: FieldApi<any, any>;
-	readonly label: string;
-	readonly options: any;
-};
-
-const CheckboxFieldList = ({
-	label,
-	field,
-	options,
-}: CheckboxFieldListProps) => {
-	// some dapi enums have duplicate values
-	const enumValues = [...new Set(getAllEnumValues(options))];
-
-	return (
-		<>
-			<Heading level={3}>{label}</Heading>
-			<fieldset className="grid grid-flow-dense grid-cols-3 gap-2">
-				{enumValues.map((option) => {
-					const index = field.state.value?.indexOf(option) ?? -1;
-					return (
-						<LabeledElement
-							className="flex items-center gap-2"
-							key={option}
-							label={options[option]}
-							position={LabelPosition.Before}
-						>
-							<Checkbox
-								checked={index >= 0}
-								name={field.name}
-								onBlur={field.handleBlur}
-								onCheckedChange={(checked) => {
-									if (checked === true) {
-										field.pushValue(option);
-									} else if (checked === false) {
-										void field.removeValue(index);
-									}
-								}}
-							/>
-						</LabeledElement>
-					);
-				})}
-			</fieldset>
-		</>
-	);
-};
-
-export { Checkbox, CheckboxField, CheckboxFieldList };
+export { Checkbox };
