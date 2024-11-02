@@ -7,7 +7,7 @@ async function defaultQueryFn({ queryKey, signal }: QueryFunctionContext) {
 	const [id, ...rest] = queryKey;
 	const path = rest.join("/");
 
-	return doFetch(id as string, path, null, { signal });
+	return authFetch(id as string, path, null, { signal });
 }
 
 export class FetchError extends Error {
@@ -30,7 +30,7 @@ export class FetchError extends Error {
 	}
 }
 
-export async function doFetch(
+export async function authFetch(
 	id: string,
 	path: string,
 	body?: any,

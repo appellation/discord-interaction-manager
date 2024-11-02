@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { RESTPostOAuth2ClientCredentialsResult } from "discord-api-types/v10";
 import { useCallback, type FormEvent } from "react";
 import { useApps, useCurrentApp } from "~/lib/state";
@@ -25,9 +25,10 @@ export default function LoginForm({
 }) {
 	const [, setApps] = useApps();
 	const [, setCurrentApp] = useCurrentApp();
+	const queryClient = useQueryClient();
 
 	const { mutate, error, isPending } = useMutation({
-		async onMutate({ clientId, clientSecret }: LoginFormData) {
+		async mutationFn({ clientId, clientSecret }: LoginFormData) {
 			const data = new URLSearchParams();
 			data.set("grant_type", "client_credentials");
 			data.set("scope", "applications.commands.update");
@@ -45,15 +46,21 @@ export default function LoginForm({
 			}
 
 			const body: RESTPostOAuth2ClientCredentialsResult = await res.json();
-
+			return body;
+		},
+		async onSuccess({ access_token }, { clientId, clientSecret }) {
 			setApps((apps) => ({
 				...apps,
 				[clientId]: {
 					secret: clientSecret,
-					token: body.access_token,
+					token: access_token,
 				},
 			}));
 			setCurrentApp(clientId);
+
+			// Discord OAuth2 client ID happens to match application ID
+			await queryClient.invalidateQueries({ queryKey: [clientId] });
+
 			onSuccess();
 		},
 	});

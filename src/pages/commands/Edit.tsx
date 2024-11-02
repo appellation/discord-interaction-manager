@@ -6,7 +6,7 @@ import type {
 import { useParams } from "wouter";
 import ErrorAlert from "~/components/ErrorAlert";
 import CommandEdit from "~/components/data/CommandEdit";
-import { doFetch, queryClient, useQueryKey } from "~/lib/fetch";
+import { authFetch, queryClient, useQueryKey } from "~/lib/fetch";
 import { useCurrentApp } from "~/lib/state";
 
 export default function EditCommand() {
@@ -28,7 +28,7 @@ export default function EditCommand() {
 		APIApplicationCommand
 	>({
 		async mutationFn(value) {
-			const command: APIApplicationCommand = await doFetch(
+			const command: APIApplicationCommand = await authFetch(
 				currentApp!,
 				`/applications/${currentApp}/commands/${commandId}`,
 				value,
