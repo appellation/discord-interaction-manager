@@ -1,6 +1,13 @@
+import { AlertTriangleIcon, Trash2Icon } from "lucide-react";
 import { useMemo } from "react";
 import { LoginDialog } from "~/components/LoginDialog";
 import { Button } from "~/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { useFetchUser } from "~/lib/fetch";
 import { useApps, useCurrentApp } from "~/lib/state";
 
@@ -11,13 +18,24 @@ function AppRow({ id }: { readonly id: string }) {
 	return (
 		<div className="p-4 my-4 flex items-center gap-2 border rounded-lg shadow">
 			<div className="grow-1">
-				<span className="font-bold">{data?.application.name}</span>
-				{error != null && (
-					<>
-						<br />
-						<span className="color-red-600 font-semibold">{error.message}</span>
-					</>
-				)}
+				<span className="text-lg">
+					{data?.application.name ?? "Unknown Application"}
+					&nbsp;
+					{error != null && (
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger>
+									<AlertTriangleIcon className="w-4 h-4 color-red-600" />
+								</TooltipTrigger>
+								<TooltipContent className="color-red-600">
+									{error.message}
+								</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					)}
+				</span>
+				<br />
+				<code>{id}</code>
 			</div>
 			<Button
 				disabled={currentApp === id || isError}
@@ -25,7 +43,9 @@ function AppRow({ id }: { readonly id: string }) {
 			>
 				Select
 			</Button>
-			<Button variant="destructive">Remove</Button>
+			<Button aria-label="Remove" variant="destructive">
+				<Trash2Icon className="w-4 h-4" />
+			</Button>
 		</div>
 	);
 }

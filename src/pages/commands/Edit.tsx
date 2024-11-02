@@ -4,6 +4,7 @@ import type {
 	RESTGetAPIApplicationCommandResult,
 } from "discord-api-types/v10";
 import { useParams } from "wouter";
+import ErrorAlert from "~/components/ErrorAlert";
 import CommandEdit from "~/components/data/CommandEdit";
 import { doFetch, queryClient, useQueryKey } from "~/lib/fetch";
 import { useCurrentApp } from "~/lib/state";
@@ -17,7 +18,7 @@ export default function EditCommand() {
 		"commands",
 		commandId,
 	]);
-	const { data } = useQuery<RESTGetAPIApplicationCommandResult>({
+	const { data, error } = useQuery<RESTGetAPIApplicationCommandResult>({
 		queryKey,
 		enabled: currentApp != null,
 	});
@@ -46,6 +47,7 @@ export default function EditCommand() {
 
 	return (
 		<main className="container mx-auto mb-16">
+			<ErrorAlert error={error} />
 			{data && <CommandEdit data={data} onSubmit={mutate} />}
 		</main>
 	);

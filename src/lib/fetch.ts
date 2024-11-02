@@ -10,6 +10,26 @@ async function defaultQueryFn({ queryKey, signal }: QueryFunctionContext) {
 	return doFetch(id as string, path, null, { signal });
 }
 
+export class FetchError extends Error {
+	public static async fromResponse(response: Response) {
+		let message: string;
+		try {
+			message = (await response.json()).message;
+		} catch {
+			message = await response.text();
+		}
+
+		return new this(response, message);
+	}
+
+	public status: number;
+
+	private constructor(response: Response, message: string) {
+		super(message);
+		this.status = response.status;
+	}
+}
+
 export async function doFetch(
 	id: string,
 	path: string,
@@ -34,6 +54,10 @@ export async function doFetch(
 		body: body == null ? undefined : JSON.stringify(body),
 	});
 
+	if (!res.ok) {
+		throw await FetchError.fromResponse(res);
+	}
+
 	return res.json();
 }
 
@@ -41,6 +65,13 @@ export const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
 			queryFn: defaultQueryFn,
+			retry(failureCount, error) {
+				if (error instanceof FetchError) {
+					return error.status >= 500;
+				}
+
+				return failureCount < 10;
+			},
 		},
 	},
 });
