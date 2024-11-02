@@ -103,7 +103,7 @@ export default function CommandEdit({
 				<Heading level={2}>Options</Heading>
 				<CommandOptionsEdit form={form} name="options" />
 			</section>
-			<Separator />
+			<Separator className="mt-8" />
 			<div className="flex gap-2 justify-end">
 				<Button type="submit">Save</Button>
 			</div>

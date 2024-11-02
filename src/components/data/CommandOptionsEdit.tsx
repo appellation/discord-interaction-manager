@@ -7,6 +7,7 @@ import {
 	ApplicationCommandOptionType,
 	ChannelType,
 } from "discord-api-types/v10";
+import { cloneDeep } from "lodash";
 import { Trash2 } from "lucide-react";
 import { useCallback } from "react";
 import TextareaField, {
@@ -52,10 +53,21 @@ export default function CommandOptionsEdit({
 
 	const removeValue = useCallback(
 		(index: number) => {
-			if (options) setOptions(options.splice(index, 1));
+			if (options) {
+				const copy = cloneDeep(options);
+				copy.splice(index, 1);
+				setOptions(copy);
+			}
 		},
 		[options, setOptions],
 	);
+
+	const addValue = useCallback(() => {
+		setOptions([
+			...(options ?? []),
+			{ name: "", description: "", type: ApplicationCommandOptionType.String },
+		]);
+	}, [options, setOptions]);
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -69,6 +81,9 @@ export default function CommandOptionsEdit({
 					removeValue={removeValue}
 				/>
 			))}
+			<Button onClick={addValue} variant="secondary">
+				Add
+			</Button>
 		</div>
 	);
 }
