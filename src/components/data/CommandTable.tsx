@@ -83,6 +83,9 @@ export default function CommandTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
+		initialState: {
+			columnOrder: ["id", "name"],
+		},
 	});
 
 	return (
