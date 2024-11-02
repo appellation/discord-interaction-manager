@@ -56,9 +56,15 @@ importers:
       enum-for:
         specifier: ^0.0.6
         version: 0.0.6
+      immer:
+        specifier: ^10.1.1
+        version: 10.1.1
       jotai:
         specifier: ^2.10.1
         version: 2.10.1(@types/react@18.2.37)(react@18.2.0)
+      jotai-immer:
+        specifier: ^0.4.1
+        version: 0.4.1(immer@10.1.1)(jotai@2.10.1(@types/react@18.2.37)(react@18.2.0))
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -2716,6 +2722,9 @@ packages:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
 
+  immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
+
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
     engines: {node: '>=6'}
@@ -2937,6 +2946,12 @@ packages:
 
   jju@1.4.0:
     resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
+
+  jotai-immer@0.4.1:
+    resolution: {integrity: sha512-nQTt1HBKie/5OJDck1qLpV1PeBA6bjJLAczEYAx70PD8R4Mbu7gtexfBUCzJh6W6ecsOfwHksAYAesVth6SN9A==}
+    peerDependencies:
+      immer: '>=9.0.0'
+      jotai: '>=2.0.0'
 
   jotai@2.10.1:
     resolution: {integrity: sha512-4FycO+BOTl2auLyF2Chvi6KTDqdsdDDtpaL/WHQMs8f3KS1E3loiUShQzAzFA/sMU5cJ0hz/RT1xum9YbG/zaA==}
@@ -7322,6 +7337,8 @@ snapshots:
 
   ignore@5.3.2: {}
 
+  immer@10.1.1: {}
+
   import-fresh@3.3.0:
     dependencies:
       parent-module: 1.0.1
@@ -7532,6 +7549,11 @@ snapshots:
   jiti@1.21.6: {}
 
   jju@1.4.0: {}
+
+  jotai-immer@0.4.1(immer@10.1.1)(jotai@2.10.1(@types/react@18.2.37)(react@18.2.0)):
+    dependencies:
+      immer: 10.1.1
+      jotai: 2.10.1(@types/react@18.2.37)(react@18.2.0)
 
   jotai@2.10.1(@types/react@18.2.37)(react@18.2.0):
     optionalDependencies:

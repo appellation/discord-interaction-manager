@@ -1,13 +1,14 @@
-import type { PrimitiveAtom } from "jotai";
+import type { Draft } from "immer";
 import { atom, getDefaultStore, useAtom } from "jotai";
-import { cloneDeep, get, set } from "lodash";
+import { atomWithImmer } from "jotai-immer";
+import { get, set } from "lodash";
 import type { FormEvent, FormEventHandler } from "react";
 import { useCallback, useMemo } from "react";
 import { reach, type Schema } from "yup";
 
 export type Form<T> = {
 	handleSubmit: FormEventHandler;
-	state: PrimitiveAtom<T>;
+	state: ReturnType<typeof atomWithImmer<T>>;
 	validator: Schema;
 };
 
@@ -22,7 +23,7 @@ export function useForm<T>({
 	validator,
 	onSubmit,
 }: FormOptions<T>): Form<T> {
-	const state = useMemo(() => atom(data), [data]);
+	const state = useMemo(() => atomWithImmer(data), [data]);
 
 	const handleSubmit = useCallback(
 		(event: FormEvent<HTMLFormElement>) => {
@@ -31,7 +32,6 @@ export function useForm<T>({
 			const data = getDefaultStore().get(state);
 			try {
 				const validated = validator.validateSync(data);
-				console.log(validated);
 				onSubmit(validated);
 			} catch {
 				// validation happens in each component
@@ -52,8 +52,13 @@ function useGetValueByName<T, U>(name: string): (value: T) => U {
 
 function useSetValueByName<T extends object, U>(
 	name: string,
-): (object: T, value: U) => T {
-	return useCallback((object, value) => set(object, name, value), [name]);
+): (draft: Draft<T>, value: U) => void {
+	return useCallback(
+		(draft, value) => {
+			set(draft, name, value);
+		},
+		[name],
+	);
 }
 
 export function useValueByName<T extends object, U>(
@@ -68,15 +73,13 @@ export function useValueByName<T extends object, U>(
 export function useValue<T, U>(
 	{ state }: Form<T>,
 	getValue: (object: T) => U,
-	setValue: (object: T, value: U) => T,
+	setValue: (draft: Draft<T>, value: U) => void,
 ) {
 	const value = useMemo(
 		() =>
 			atom(
 				(get) => getValue(get(state)),
-				(get, set, value: U) =>
-					// TODO: remove this cloneDeep (immer?)
-					set(state, (object) => cloneDeep(setValue(object, value))),
+				(get, set, value: U) => set(state, (draft) => setValue(draft, value)),
 			),
 		[state, getValue, setValue],
 	);
