@@ -233,8 +233,9 @@ function CommandOptionChoicesEdit({
 	const removeValue = useCallback(
 		(index: number) => {
 			if (choices) {
-				choices.splice(index, 1);
-				setChoices([...choices]);
+				const copy = cloneDeep(choices);
+				copy.splice(index, 1);
+				setChoices(copy);
 			}
 		},
 		[choices, setChoices],
