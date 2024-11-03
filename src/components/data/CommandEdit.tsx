@@ -1,10 +1,10 @@
 import {
 	ApplicationCommandType,
-	type APIApplicationCommand,
 	ApplicationIntegrationType,
 	InteractionContextType,
 } from "discord-api-types/v10";
-import { array, boolean, number, object, string } from "yup";
+import type { InferType } from "yup";
+import { array, boolean, mixed, number, object, string } from "yup";
 import TextareaField, {
 	CheckboxField,
 	CheckboxFieldList,
@@ -20,14 +20,21 @@ import CommandOptionsEdit from "./CommandOptionsEdit";
 const schema = object({
 	type: number(),
 	name: string().min(1),
-	default_member_permissions: number().nullable(),
+	guild_id: string().optional(),
+	default_member_permissions: string().nullable(),
 	options: array(
 		object({
 			type: number(),
 			name: string(),
 			description: string(),
 			required: boolean().optional(),
-			choices: array(object({ name: string(), value: string() })).optional(),
+			choices: array(
+				object({
+					name: string(),
+					// TODO: ensure is number or string
+					value: mixed<number | string>(),
+				}),
+			).optional(),
 			channel_types: array(number()).optional(),
 			min_value: number().optional(),
 			max_value: number().optional(),
@@ -37,12 +44,14 @@ const schema = object({
 	),
 });
 
+export type Schema = InferType<typeof schema>;
+
 export default function CommandEdit({
 	data,
 	onSubmit,
 }: {
-	readonly data: APIApplicationCommand;
-	onSubmit(this: void, value: APIApplicationCommand): void;
+	readonly data: Schema;
+	onSubmit(this: void, value: Schema): void;
 }) {
 	const form = useForm({ data, onSubmit, validator: schema });
 

@@ -19,6 +19,7 @@ import { useValueByName, type Form } from "../form/context";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Heading } from "../ui/typography";
+import type { Schema } from "./CommandEdit";
 
 const SUB_OPTIONS = [
 	ApplicationCommandOptionType.Subcommand,
@@ -37,7 +38,7 @@ const NUMBER_OPTIONS = [
 ];
 
 export type CommandOptionsEditProps = {
-	readonly form: Form<APIApplicationCommand>;
+	readonly form: Form<Schema>;
 	readonly name: string;
 };
 
@@ -87,7 +88,7 @@ export default function CommandOptionsEdit({
 }
 
 type CommandOptionEditProps = {
-	readonly form: Form<APIApplicationCommand>;
+	readonly form: Form<Schema>;
 	readonly index: number;
 	readonly name: string;
 	readonly option: APIApplicationCommandOption;
@@ -215,7 +216,7 @@ function CommandOptionEdit({
 }
 
 type CommandOptionChoicesEditProps = {
-	readonly form: Form<APIApplicationCommand>;
+	readonly form: Form<Schema>;
 	readonly name: string;
 };
 
