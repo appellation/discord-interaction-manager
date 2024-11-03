@@ -14,12 +14,6 @@ import { Alert } from "../ui/alert";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import {
 	Table,
 	TableBody,
 	TableCell,
@@ -63,17 +57,12 @@ const columns: ColumnDef<APIApplicationCommand>[] = [
 		id: "actions",
 		cell({ row }) {
 			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline">Menu</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent>
-						<DropdownMenuItem asChild>
-							<Link href={`/commands/${row.original.id}/edit`}>Edit</Link>
-						</DropdownMenuItem>
-						<DropdownMenuItem>Delete</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div className="flex gap-2">
+					<Button asChild>
+						<Link href={`/commands/${row.original.id}/edit`}>Edit</Link>
+					</Button>
+					<Button variant="destructive">Delete</Button>
+				</div>
 			);
 		},
 	},
