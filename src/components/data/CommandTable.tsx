@@ -4,9 +4,10 @@ import {
 	getCoreRowModel,
 	flexRender,
 } from "@tanstack/react-table";
-import type {
-	APIApplicationCommand,
-	RESTGetAPIApplicationCommandsResult,
+import {
+	ApplicationCommandType,
+	type APIApplicationCommand,
+	type RESTGetAPIApplicationCommandsResult,
 } from "discord-api-types/v10";
 import { Link } from "wouter";
 import { Alert } from "../ui/alert";
@@ -28,7 +29,13 @@ import {
 } from "../ui/table";
 
 const columns: ColumnDef<APIApplicationCommand>[] = [
-	{ accessorKey: "type", header: "Type" },
+	{
+		accessorKey: "type",
+		header: "Type",
+		cell({ getValue }) {
+			return <span>{ApplicationCommandType[getValue() as number]}</span>;
+		},
+	},
 	{ accessorKey: "name", header: "Name" },
 	{ accessorKey: "description", header: "Description" },
 	{
