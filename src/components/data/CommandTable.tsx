@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
 	useReactTable,
 	type ColumnDef,
@@ -9,7 +10,10 @@ import {
 	type APIApplicationCommand,
 	type RESTGetAPIApplicationCommandsResult,
 } from "discord-api-types/v10";
+import { useCallback } from "react";
 import { Link } from "wouter";
+import { authFetch } from "~/lib/fetch";
+import DeleteConfirmButton from "../DeleteConfirmButton";
 import { Alert } from "../ui/alert";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -56,17 +60,48 @@ const columns: ColumnDef<APIApplicationCommand>[] = [
 	{
 		id: "actions",
 		cell({ row }) {
-			return (
-				<div className="flex gap-2">
-					<Button asChild>
-						<Link href={`/commands/${row.original.id}/edit`}>Edit</Link>
-					</Button>
-					<Button variant="destructive">Delete</Button>
-				</div>
-			);
+			return <CommandActions command={row.original} />;
 		},
 	},
 ];
+
+function CommandActions({
+	command,
+}: {
+	readonly command: APIApplicationCommand;
+}) {
+	const queryClient = useQueryClient();
+	const { mutate, isPending } = useMutation({
+		async mutationFn(id: string) {
+			await authFetch(
+				command.application_id,
+				`/applications/${command.application_id}/commands/${id}`,
+				null,
+				{
+					method: "DELETE",
+				},
+			);
+		},
+		async onSuccess() {
+			await queryClient.invalidateQueries({
+				queryKey: ["applications", command.application_id],
+			});
+		},
+	});
+
+	const handleDeleteClick = useCallback(() => {
+		mutate(command.id);
+	}, [mutate, command.id]);
+
+	return (
+		<div className="flex gap-2">
+			<Button asChild>
+				<Link href={`/commands/${command.id}/edit`}>Edit</Link>
+			</Button>
+			<DeleteConfirmButton disabled={isPending} onClick={handleDeleteClick} />
+		</div>
+	);
+}
 
 export default function CommandTable({
 	data,
