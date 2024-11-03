@@ -7,7 +7,6 @@ import {
 	ApplicationCommandOptionType,
 	ChannelType,
 } from "discord-api-types/v10";
-import { cloneDeep } from "lodash";
 import { Trash2 } from "lucide-react";
 import { useCallback } from "react";
 import TextareaField, {
@@ -53,13 +52,12 @@ export default function CommandOptionsEdit({
 
 	const removeValue = useCallback(
 		(index: number) => {
-			if (options) {
-				const copy = cloneDeep(options);
-				copy.splice(index, 1);
-				setOptions(copy);
-			}
+			setOptions((options) => {
+				options?.splice(index, 1);
+				return options;
+			});
 		},
-		[options, setOptions],
+		[setOptions],
 	);
 
 	const addValue = useCallback(() => {
@@ -232,13 +230,12 @@ function CommandOptionChoicesEdit({
 
 	const removeValue = useCallback(
 		(index: number) => {
-			if (choices) {
-				const copy = cloneDeep(choices);
-				copy.splice(index, 1);
-				setChoices(copy);
-			}
+			setChoices((choices) => {
+				choices?.splice(index, 1);
+				return choices;
+			});
 		},
-		[choices, setChoices],
+		[setChoices],
 	);
 
 	const addValue = useCallback(() => {

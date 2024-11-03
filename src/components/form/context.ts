@@ -46,7 +46,7 @@ export function useForm<T>({
 	);
 }
 
-function useGetValueByName<T, U>(name: string): (value: T) => U {
+function useGetValueByName<T, U>(name: string): (value: Draft<T> | T) => U {
 	return useCallback((object) => get(object, name), [name]);
 }
 
@@ -70,16 +70,27 @@ export function useValueByName<T extends object, U>(
 	return useValue(form, getValue, setValue);
 }
 
+type NotFunction<T> = Exclude<T, Function>;
+
 export function useValue<T, U>(
 	{ state }: Form<T>,
-	getValue: (object: T) => U,
+	getValue: (object: Draft<T> | T) => U,
 	setValue: (draft: Draft<T>, value: U) => void,
 ) {
 	const value = useMemo(
 		() =>
 			atom(
 				(get) => getValue(get(state)),
-				(get, set, value: U) => set(state, (draft) => setValue(draft, value)),
+				(get, set, value: NotFunction<U> | ((draft: Draft<U>) => U)) => {
+					set(state, (draft) => {
+						if (typeof value === "function") {
+							// @ts-expect-error typescript is stupid
+							setValue(draft, value(getValue(draft)));
+						} else {
+							setValue(draft, value);
+						}
+					});
+				},
 			),
 		[state, getValue, setValue],
 	);
