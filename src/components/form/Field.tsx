@@ -1,5 +1,7 @@
+import type { CheckedState } from "@radix-ui/react-checkbox";
+import type { ClassValue } from "clsx";
 import { getAllEnumValues } from "enum-for";
-import type { ChangeEvent, FocusEvent } from "react";
+import type { ChangeEvent, FocusEvent, PropsWithChildren } from "react";
 import { useCallback, useId, useMemo, useState } from "react";
 import { cn } from "~/lib/utils";
 import { Checkbox } from "../ui/checkbox";
@@ -22,6 +24,28 @@ export type FieldProps = {
 	readonly label: string;
 	readonly name: string;
 };
+
+function ErrorContainer({
+	error,
+	errorId,
+	className,
+	children,
+}: PropsWithChildren<{
+	readonly className?: ClassValue;
+	readonly error: Error | null | undefined;
+	readonly errorId: string;
+}>) {
+	return (
+		<div className={cn("flex flex-col", className)}>
+			{children}
+			{error == null ? null : (
+				<span className="text-red-500 text-sm" id={errorId}>
+					{error.message}
+				</span>
+			)}
+		</div>
+	);
+}
 
 export type TextInputFieldProps = FieldProps & Omit<InputProps, "form">;
 
@@ -59,8 +83,8 @@ export function TextInputField({
 	);
 
 	return (
-		<div className="flex flex-col w-full">
-			<LabeledElement className={className} label={label}>
+		<ErrorContainer className={className} error={error} errorId={errorId}>
+			<LabeledElement label={label}>
 				<Input
 					{...props}
 					aria-errormessage={error == null ? undefined : errorId}
@@ -72,12 +96,7 @@ export function TextInputField({
 					value={data ?? ""}
 				/>
 			</LabeledElement>
-			{error == null ? null : (
-				<span className="text-red-500 text-sm" id={errorId}>
-					{error.message}
-				</span>
-			)}
-		</div>
+		</ErrorContainer>
 	);
 }
 
@@ -86,49 +105,109 @@ export type SelectFieldProps = FieldProps & { readonly options: any };
 export function SelectField({ form, label, name, options }: SelectFieldProps) {
 	const [data, setData] = useValueByName<any, string>(form, name);
 	const validator = useValidatorByName(form, name);
+	const [error, setError] = useState<Error>();
+	const errorId = useId();
+
+	const validate = useCallback(
+		(value: string) => {
+			try {
+				validator.validateSync(value);
+				setError(undefined);
+			} catch (error) {
+				setError(error as Error);
+			}
+		},
+		[validator],
+	);
 
 	const handleChange = useCallback(
 		(newValue: string) => {
 			const schemaValue = validator.cast(newValue);
 			setData(schemaValue);
+			validate(newValue);
 		},
-		[setData, validator],
+		[setData, validator, validate],
 	);
 
 	return (
-		<LabeledElement className="w-64" label={label}>
-			<Select onValueChange={handleChange} value={data?.toString()}>
-				<SelectTrigger>
-					<SelectValue placeholder={label} />
-				</SelectTrigger>
-				<SelectContent>
-					{getAllEnumValues(options).map((type) => (
-						<SelectItem key={type} value={type.toString()}>
-							{options[type]}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
-		</LabeledElement>
+		<ErrorContainer error={error} errorId={errorId}>
+			<LabeledElement className="w-64" label={label}>
+				<Select
+					onOpenChange={() => validate(data)}
+					onValueChange={handleChange}
+					value={data?.toString()}
+				>
+					<SelectTrigger
+						aria-errormessage={errorId}
+						aria-invalid={error != null}
+						className={cn({ "border-red-200": error != null })}
+					>
+						<SelectValue placeholder={label} />
+					</SelectTrigger>
+					<SelectContent>
+						{getAllEnumValues(options).map((type) => (
+							<SelectItem key={type} value={type.toString()}>
+								{options[type]}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</LabeledElement>
+		</ErrorContainer>
 	);
 }
 
 export function CheckboxField({ label, name, form }: FieldProps) {
 	const [value, setValue] = useValueByName<any, boolean>(form, name);
+	const validator = useValidatorByName(form, name);
+	const [error, setError] = useState<Error>();
+	const errorId = useId();
+
+	const validate = useCallback(() => {
+		try {
+			validator.validateSync(value);
+			setError(undefined);
+		} catch (error) {
+			setError(error as Error);
+		}
+	}, [validator, value]);
+
+	const handleCheckedChange = useCallback(
+		(checked: CheckedState) => {
+			if (checked === true) {
+				setValue(true);
+			} else {
+				setValue(false);
+			}
+
+			validate();
+		},
+		[setValue, validate],
+	);
 
 	return (
-		<LabeledElement className="flex items-center gap-2" label={label}>
-			<Checkbox
-				checked={value}
-				onCheckedChange={(checked) => {
-					if (checked === true) {
-						setValue(true);
-					} else {
-						setValue(false);
-					}
-				}}
-			/>
-		</LabeledElement>
+		<>
+			<LabeledElement
+				className={cn("flex items-center gap-2", {
+					"text-red-500": error != null,
+				})}
+				label={label}
+			>
+				<Checkbox
+					aria-errormessage={errorId}
+					aria-invalid={error != null}
+					checked={value}
+					className={cn({ "border-red-900": error != null })}
+					onBlur={() => validate()}
+					onCheckedChange={handleCheckedChange}
+				/>
+			</LabeledElement>
+			{error == null ? null : (
+				<span className="sr-only" id={errorId}>
+					{error.message}
+				</span>
+			)}
+		</>
 	);
 }
 
@@ -179,14 +258,32 @@ export function CheckboxFieldList({
 
 export default function TextareaField({ label, name, form }: FieldProps) {
 	const [value, setValue] = useValueByName<any, string>(form, name);
+	const validator = useValidatorByName(form, name);
+	const [error, setError] = useState<Error>();
+	const errorId = useId();
+
+	const validate = useCallback(() => {
+		try {
+			validator.validateSync(value);
+			setError(undefined);
+		} catch (error) {
+			setError(error as Error);
+		}
+	}, [validator, value]);
 
 	return (
-		<LabeledElement label={label}>
-			<Textarea
-				name={name}
-				onChange={(event) => setValue(event.target.value)}
-				value={value}
-			/>
-		</LabeledElement>
+		<ErrorContainer error={error} errorId={errorId}>
+			<LabeledElement label={label}>
+				<Textarea
+					aria-errormessage={errorId}
+					aria-invalid={error != null}
+					className={cn({ "border-red-200": error != null })}
+					name={name}
+					onBlur={() => validate()}
+					onChange={(event) => setValue(event.target.value)}
+					value={value}
+				/>
+			</LabeledElement>
+		</ErrorContainer>
 	);
 }

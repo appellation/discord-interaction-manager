@@ -18,15 +18,19 @@ import { Heading } from "../ui/typography";
 import CommandOptionsEdit from "./CommandOptionsEdit";
 
 const schema = object({
-	type: number(),
-	name: string().min(1),
+	type: number().required(),
+	name: string().min(1).required(),
+	description: string().min(1).max(100),
 	guild_id: string().optional(),
+	dm_permission: boolean(),
+	default_permission: boolean(),
+	nsfw: boolean(),
 	default_member_permissions: string().nullable(),
 	options: array(
 		object({
-			type: number(),
-			name: string(),
-			description: string(),
+			type: number().required(),
+			name: string().min(1).max(32).required(),
+			description: string().min(1).max(100).required(),
 			required: boolean().optional(),
 			choices: array(
 				object({
@@ -40,6 +44,7 @@ const schema = object({
 			max_value: number().optional(),
 			min_length: number().optional(),
 			max_length: number().optional(),
+			autocomplete: boolean(),
 		}),
 	),
 });
