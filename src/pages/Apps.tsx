@@ -1,5 +1,8 @@
-import { AlertTriangleIcon, Trash2Icon } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { omit } from "lodash";
+import { AlertTriangleIcon } from "lucide-react";
 import { useMemo } from "react";
+import DeleteConfirmButton from "~/components/DeleteConfirmButton";
 import { LoginDialog } from "~/components/LoginDialog";
 import { Button } from "~/components/ui/button";
 import {
@@ -8,15 +11,35 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useFetchUser } from "~/lib/fetch";
+import { useFetchUser, useQueryKey } from "~/lib/fetch";
 import { useApps, useCurrentApp } from "~/lib/state";
+import { cn } from "~/lib/utils";
 
 function AppRow({ id }: { readonly id: string }) {
+	const oauthQueryKey = useQueryKey(["oauth2", "@me"]);
+	const queryClient = useQueryClient();
+
 	const { data, error, isError } = useFetchUser(id);
 	const [currentApp, setCurrentApp] = useCurrentApp();
+	const [_apps, setApps] = useApps();
+	const isCurrentApp = id === currentApp;
+
+	const handleAppRemove = () => {
+		if (isCurrentApp) {
+			setCurrentApp(null);
+		}
+
+		setApps((apps) => omit(apps, id));
+		void queryClient.invalidateQueries({ queryKey: oauthQueryKey });
+	};
 
 	return (
-		<div className="p-4 my-4 flex items-center gap-2 border rounded-lg shadow">
+		<div
+			className={cn(
+				"p-4 my-4 flex items-center gap-2 border rounded-lg shadow",
+				{ "border-green-500": isCurrentApp },
+			)}
+		>
 			<div className="grow-1">
 				<span className="text-lg">
 					{data?.application.name ?? "Unknown Application"}
@@ -38,14 +61,12 @@ function AppRow({ id }: { readonly id: string }) {
 				<code>{id}</code>
 			</div>
 			<Button
-				disabled={currentApp === id || isError}
+				disabled={isCurrentApp || isError}
 				onClick={() => setCurrentApp(id)}
 			>
 				Select
 			</Button>
-			<Button aria-label="Remove" variant="destructive">
-				<Trash2Icon className="w-4 h-4" />
-			</Button>
+			<DeleteConfirmButton aria-label="Remove" onClick={handleAppRemove} />
 		</div>
 	);
 }
