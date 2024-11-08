@@ -1,6 +1,7 @@
 import { getAllEnumValues } from "enum-for";
 import type { ChangeEvent, FocusEvent } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
+import { cn } from "~/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import type { InputProps } from "../ui/input";
 import { Input } from "../ui/input";
@@ -34,6 +35,7 @@ export function TextInputField({
 	const [data, setData] = useValueByName<any, number | string>(form, name);
 	const validator = useValidatorByName(form, name);
 	const [error, setError] = useState<Error>();
+	const errorId = useId();
 
 	const handleChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +44,7 @@ export function TextInputField({
 		},
 		[setData],
 	);
+
 	const handleBlur = useCallback(
 		(event: FocusEvent<HTMLInputElement>) => {
 			event.stopPropagation();
@@ -55,20 +58,26 @@ export function TextInputField({
 		[validator],
 	);
 
-	if (error != null) {
-		console.error(error);
-	}
-
 	return (
-		<LabeledElement className={className} label={label}>
-			<Input
-				{...props}
-				name={name}
-				onBlur={handleBlur}
-				onChange={handleChange}
-				value={data ?? ""}
-			/>
-		</LabeledElement>
+		<div className="flex flex-col w-full">
+			<LabeledElement className={className} label={label}>
+				<Input
+					{...props}
+					aria-errormessage={error == null ? undefined : errorId}
+					aria-invalid={error != null}
+					className={cn({ "border-red-200": error != null })}
+					name={name}
+					onBlur={handleBlur}
+					onChange={handleChange}
+					value={data ?? ""}
+				/>
+			</LabeledElement>
+			{error == null ? null : (
+				<span className="text-red-500 text-sm" id={errorId}>
+					{error.message}
+				</span>
+			)}
+		</div>
 	);
 }
 
