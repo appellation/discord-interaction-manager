@@ -9,6 +9,7 @@ import {
 } from "discord-api-types/v10";
 import { Trash2 } from "lucide-react";
 import { useCallback } from "react";
+import { cn } from "~/lib/utils";
 import TextareaField, {
 	CheckboxField,
 	CheckboxFieldList,
@@ -103,11 +104,15 @@ function CommandOptionEdit({
 	removeValue,
 }: CommandOptionEditProps) {
 	const elementName = `${name}[${index}]`;
+	const hasName = option.name.length > 0;
+
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle className="flex items-baseline">
-					<span className="grow">{option.name}</span>
+					<span className={cn("grow", { "text-gray-500": !hasName })}>
+						{hasName ? option.name : "unnamed"}
+					</span>
 					<Button
 						aria-label="Remove option"
 						onClick={() => removeValue(index)}
