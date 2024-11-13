@@ -2,7 +2,7 @@ import type { CheckedState } from "@radix-ui/react-checkbox";
 import type { ClassValue } from "clsx";
 import { getAllEnumValues } from "enum-for";
 import type { ChangeEvent, FocusEvent, PropsWithChildren } from "react";
-import { useCallback, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { cn } from "~/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import type { InputProps } from "../ui/input";
@@ -17,7 +17,11 @@ import {
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 import type { Form } from "./context";
-import { useValidatorByName, useValueByName } from "./context";
+import {
+	useValidateByName,
+	useValidatorByName,
+	useValueByName,
+} from "./context";
 
 export type FieldProps = {
 	readonly form: Form<any>;
@@ -57,8 +61,7 @@ export function TextInputField({
 	...props
 }: TextInputFieldProps) {
 	const [data, setData] = useValueByName<any, number | string>(form, name);
-	const validator = useValidatorByName(form, name);
-	const [error, setError] = useState<Error>();
+	const { error, validate } = useValidateByName(form, name);
 	const errorId = useId();
 
 	const handleChange = useCallback(
@@ -72,14 +75,9 @@ export function TextInputField({
 	const handleBlur = useCallback(
 		(event: FocusEvent<HTMLInputElement>) => {
 			event.stopPropagation();
-			try {
-				validator.validateSync(event.target.value);
-				setError(undefined);
-			} catch (error) {
-				setError(error as Error);
-			}
+			validate(event.target.value);
 		},
-		[validator],
+		[validate],
 	);
 
 	return (
@@ -104,29 +102,16 @@ export type SelectFieldProps = FieldProps & { readonly options: any };
 
 export function SelectField({ form, label, name, options }: SelectFieldProps) {
 	const [data, setData] = useValueByName<any, string>(form, name);
-	const validator = useValidatorByName(form, name);
-	const [error, setError] = useState<Error>();
+	const { error, validate, cast } = useValidateByName(form, name);
 	const errorId = useId();
-
-	const validate = useCallback(
-		(value: string) => {
-			try {
-				validator.validateSync(value);
-				setError(undefined);
-			} catch (error) {
-				setError(error as Error);
-			}
-		},
-		[validator],
-	);
 
 	const handleChange = useCallback(
 		(newValue: string) => {
-			const schemaValue = validator.cast(newValue);
+			const schemaValue = cast(newValue);
 			setData(schemaValue);
 			validate(newValue);
 		},
-		[setData, validator, validate],
+		[setData, cast, validate],
 	);
 
 	return (
@@ -159,18 +144,8 @@ export function SelectField({ form, label, name, options }: SelectFieldProps) {
 
 export function CheckboxField({ label, name, form }: FieldProps) {
 	const [value, setValue] = useValueByName<any, boolean>(form, name);
-	const validator = useValidatorByName(form, name);
-	const [error, setError] = useState<Error>();
+	const { error, validate } = useValidateByName(form, name);
 	const errorId = useId();
-
-	const validate = useCallback(() => {
-		try {
-			validator.validateSync(value);
-			setError(undefined);
-		} catch (error) {
-			setError(error as Error);
-		}
-	}, [validator, value]);
 
 	const handleCheckedChange = useCallback(
 		(checked: CheckedState) => {
@@ -180,7 +155,7 @@ export function CheckboxField({ label, name, form }: FieldProps) {
 				setValue(false);
 			}
 
-			validate();
+			validate(checked);
 		},
 		[setValue, validate],
 	);
@@ -198,7 +173,6 @@ export function CheckboxField({ label, name, form }: FieldProps) {
 					aria-invalid={error != null}
 					checked={value}
 					className={cn({ "border-red-900": error != null })}
-					onBlur={() => validate()}
 					onCheckedChange={handleCheckedChange}
 				/>
 			</LabeledElement>
@@ -258,18 +232,22 @@ export function CheckboxFieldList({
 
 export default function TextareaField({ label, name, form }: FieldProps) {
 	const [value, setValue] = useValueByName<any, string>(form, name);
-	const validator = useValidatorByName(form, name);
-	const [error, setError] = useState<Error>();
+	const { error, validate } = useValidateByName(form, name);
 	const errorId = useId();
 
-	const validate = useCallback(() => {
-		try {
-			validator.validateSync(value);
-			setError(undefined);
-		} catch (error) {
-			setError(error as Error);
-		}
-	}, [validator, value]);
+	const handleChange = useCallback(
+		(event: ChangeEvent<HTMLTextAreaElement>) => {
+			setValue(event.target.value);
+		},
+		[setValue],
+	);
+
+	const handleBlur = useCallback(
+		(event: FocusEvent<HTMLTextAreaElement>) => {
+			validate(event.target.value);
+		},
+		[validate],
+	);
 
 	return (
 		<ErrorContainer error={error} errorId={errorId}>
@@ -279,8 +257,8 @@ export default function TextareaField({ label, name, form }: FieldProps) {
 					aria-invalid={error != null}
 					className={cn({ "border-red-200": error != null })}
 					name={name}
-					onBlur={() => validate()}
-					onChange={(event) => setValue(event.target.value)}
+					onBlur={handleBlur}
+					onChange={handleChange}
 					value={value}
 				/>
 			</LabeledElement>

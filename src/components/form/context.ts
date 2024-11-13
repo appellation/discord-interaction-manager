@@ -3,10 +3,12 @@ import { atom, getDefaultStore, useAtom } from "jotai";
 import { atomWithImmer } from "jotai-immer";
 import { get, set } from "lodash";
 import type { FormEvent, FormEventHandler } from "react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { reach, type Schema } from "yup";
 
 export type Form<T> = {
+	error?: Error;
+	events: EventTarget;
 	handleSubmit: FormEventHandler;
 	state: ReturnType<typeof atomWithImmer<T>>;
 	validator: Schema;
@@ -24,6 +26,8 @@ export function useForm<T>({
 	onSubmit,
 }: FormOptions<T>): Form<T> {
 	const state = useMemo(() => atomWithImmer(data), [data]);
+	const [error, setError] = useState<Error>();
+	const events = useRef(new EventTarget());
 
 	const handleSubmit = useCallback(
 		(event: FormEvent<HTMLFormElement>) => {
@@ -31,18 +35,20 @@ export function useForm<T>({
 
 			const data = getDefaultStore().get(state);
 			try {
-				const validated = validator.validateSync(data);
+				events.current.dispatchEvent(new Event("validate"));
+				const validated = validator.validateSync(data, { abortEarly: false });
 				onSubmit(validated);
-			} catch {
-				// validation happens in each component
+				setError(undefined);
+			} catch (error) {
+				setError(error as Error);
 			}
 		},
 		[state, onSubmit, validator],
 	);
 
 	return useMemo(
-		() => ({ state, validator, handleSubmit }),
-		[state, validator, handleSubmit],
+		() => ({ state, validator, handleSubmit, error, events: events.current }),
+		[state, validator, handleSubmit, error],
 	);
 }
 
@@ -102,4 +108,35 @@ export function useValidatorByName(
 	name: string,
 ): Schema {
 	return useMemo(() => reach(validator, name), [validator, name]) as Schema;
+}
+
+export function useValidateByName(form: Form<any>, name: string) {
+	const validator = useValidatorByName(form, name);
+	const [error, setError] = useState<Error>();
+
+	const validate = useCallback(
+		(value: any) => {
+			try {
+				validator.validateSync(value, { abortEarly: false });
+				setError(undefined);
+			} catch (error) {
+				setError(error as Error);
+			}
+		},
+		[validator],
+	);
+
+	const cast = useCallback((value: any) => validator.cast(value), [validator]);
+
+	useEffect(() => {
+		const callback = () => {
+			const data = get(getDefaultStore().get(form.state), name);
+			validate(data);
+		};
+
+		form.events.addEventListener("validate", callback);
+		return () => form.events.removeEventListener("validate", callback);
+	}, [validate, name, form.state, form.events]);
+
+	return useMemo(() => ({ error, validate, cast }), [error, validate, cast]);
 }

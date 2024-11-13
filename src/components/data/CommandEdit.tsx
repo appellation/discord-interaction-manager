@@ -118,6 +118,9 @@ export default function CommandEdit({
 				<CommandOptionsEdit form={form} name="options" />
 			</section>
 			<Separator className="mt-8" />
+			{form.error && (
+				<span className="text-right text-red-500">{form.error.message}</span>
+			)}
 			<div className="flex gap-2 justify-end">
 				<Button type="submit">Save</Button>
 			</div>
