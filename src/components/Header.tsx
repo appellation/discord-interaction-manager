@@ -6,12 +6,14 @@ import { Heading } from "./ui/typography";
 export default function Header() {
 	return (
 		<div className="mb-8">
-			<div className="container mx-auto flex items-end py-2">
-				<Heading className="grow" level={1}>
-					<Link to="/">Discord Interactions</Link>
-				</Heading>
+			<nav className="container mx-auto flex items-center py-2">
+				<div className="grow">
+					<Link className="text-2xl font-semibold" to="/">
+						Discord Command Manager
+					</Link>
+				</div>
 				<LoginMenu />
-			</div>
+			</nav>
 			<Separator />
 		</div>
 	);

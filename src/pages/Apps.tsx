@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { omit } from "lodash";
 import { AlertTriangleIcon } from "lucide-react";
 import { useMemo } from "react";
+import { Redirect } from "wouter";
 import DeleteConfirmButton from "~/components/DeleteConfirmButton";
 import { LoginDialog } from "~/components/LoginDialog";
 import { Button } from "~/components/ui/button";
@@ -66,7 +67,7 @@ function AppRow({ id }: { readonly id: string }) {
 			>
 				Select
 			</Button>
-			<DeleteConfirmButton aria-label="Remove" onClick={handleAppRemove} />
+			<DeleteConfirmButton onClick={handleAppRemove} />
 		</div>
 	);
 }
@@ -74,6 +75,10 @@ function AppRow({ id }: { readonly id: string }) {
 export default function AppsPage() {
 	const [apps] = useApps();
 	const ids: string[] = useMemo(() => Object.keys(apps ?? {}), [apps]);
+
+	if (ids.length === 0) {
+		return <Redirect to="/" />;
+	}
 
 	return (
 		<main className="container mx-auto">

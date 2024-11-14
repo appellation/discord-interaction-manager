@@ -103,3 +103,7 @@ export function useFetchUser(id: string | null) {
 		queryKey,
 	});
 }
+
+export function useIsLoggedIn() {
+	return useFetchCurrentApp() != null;
+}

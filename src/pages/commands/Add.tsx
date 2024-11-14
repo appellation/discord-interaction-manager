@@ -14,8 +14,10 @@ export default function Add() {
 	const [data, setData] = useState<APIApplicationCommand>({});
 
 	const { mutate, error } = useMutation({
-		async mutationFn(value: APIApplicationCommand) {
+		onMutate(value: APIApplicationCommand) {
 			setData(value);
+		},
+		async mutationFn(value: APIApplicationCommand) {
 			const result: RESTPostAPIApplicationCommandsResult = await authFetch(
 				currentApp!,
 				`/applications/${currentApp}/commands`,
