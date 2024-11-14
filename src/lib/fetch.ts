@@ -17,7 +17,7 @@ export class FetchError extends Error {
 			const body = await response.json();
 			message = body.message;
 
-			const errors = Object.entries(body.errors);
+			const errors = Object.entries(body.errors ?? {});
 			message +=
 				"\n\n" +
 				errors.reduce(
@@ -77,6 +77,7 @@ export const queryClient = new QueryClient({
 		queries: {
 			queryFn: defaultQueryFn,
 			retry(failureCount, error) {
+				console.error(error);
 				if (error instanceof FetchError) {
 					return error.status >= 500;
 				}
