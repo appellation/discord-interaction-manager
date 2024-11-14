@@ -14,7 +14,18 @@ export class FetchError extends Error {
 	public static async fromResponse(response: Response) {
 		let message: string;
 		try {
-			message = (await response.json()).message;
+			const body = await response.json();
+			message = body.message;
+
+			const errors = Object.entries(body.errors);
+			message +=
+				"\n\n" +
+				errors.reduce(
+					(acc, [name, error]) =>
+						acc +
+						`${name}: ${(error as any)._errors.map((err: any) => err.message).join(" ")}`,
+					"",
+				);
 		} catch {
 			message = await response.text();
 		}

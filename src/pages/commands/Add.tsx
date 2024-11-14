@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { RESTPostAPIApplicationCommandsResult } from "discord-api-types/v10";
-import type { Schema } from "~/components/data/CommandEdit";
+import type {
+	APIApplicationCommand,
+	RESTPostAPIApplicationCommandsResult,
+} from "discord-api-types/v10";
+import { useState } from "react";
 import CommandEdit from "~/components/data/CommandEdit";
 import { authFetch } from "~/lib/fetch";
 import { useCurrentApp } from "~/lib/state";
@@ -8,9 +11,11 @@ import { useCurrentApp } from "~/lib/state";
 export default function Add() {
 	const [currentApp] = useCurrentApp();
 	const queryClient = useQueryClient();
+	const [data, setData] = useState<APIApplicationCommand>({});
 
-	const { mutate } = useMutation({
-		async mutationFn(value: Schema) {
+	const { mutate, error } = useMutation({
+		async mutationFn(value: APIApplicationCommand) {
+			setData(value);
 			const result: RESTPostAPIApplicationCommandsResult = await authFetch(
 				currentApp!,
 				`/applications/${currentApp}/commands`,
@@ -29,7 +34,7 @@ export default function Add() {
 
 	return (
 		<main className="container mx-auto">
-			<CommandEdit data={{}} onSubmit={mutate} />
+			<CommandEdit data={data} error={error} onSubmit={mutate} />
 		</main>
 	);
 }

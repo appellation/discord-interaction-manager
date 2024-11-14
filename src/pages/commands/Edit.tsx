@@ -5,7 +5,6 @@ import type {
 } from "discord-api-types/v10";
 import { useParams } from "wouter";
 import ErrorAlert from "~/components/ErrorAlert";
-import type { Schema } from "~/components/data/CommandEdit";
 import CommandEdit from "~/components/data/CommandEdit";
 import { authFetch, queryClient, useQueryKey } from "~/lib/fetch";
 import { useCurrentApp } from "~/lib/state";
@@ -23,8 +22,8 @@ export default function EditCommand() {
 		queryKey,
 		enabled: currentApp != null,
 	});
-	const { mutate } = useMutation({
-		async mutationFn(value: Schema) {
+	const { mutate, error: mutateError } = useMutation({
+		async mutationFn(value: APIApplicationCommand) {
 			const command: APIApplicationCommand = await authFetch(
 				currentApp!,
 				`/applications/${currentApp}/commands/${commandId}`,
@@ -45,7 +44,9 @@ export default function EditCommand() {
 	return (
 		<main className="container mx-auto mb-16">
 			<ErrorAlert error={error} />
-			{data && <CommandEdit data={data} onSubmit={mutate} />}
+			{data && (
+				<CommandEdit data={data} error={mutateError} onSubmit={mutate} />
+			)}
 		</main>
 	);
 }

@@ -1,10 +1,10 @@
+import type { APIApplicationCommand } from "discord-api-types/v10";
 import {
 	ApplicationCommandType,
 	ApplicationIntegrationType,
 	InteractionContextType,
 } from "discord-api-types/v10";
-import type { InferType } from "yup";
-import { array, boolean, mixed, number, object, string } from "yup";
+import ErrorAlert from "../ErrorAlert";
 import TextareaField, {
 	CheckboxField,
 	CheckboxFieldList,
@@ -17,48 +17,16 @@ import { Separator } from "../ui/separator";
 import { Heading } from "../ui/typography";
 import CommandOptionsEdit from "./CommandOptionsEdit";
 
-const schema = object({
-	type: number().required(),
-	name: string().min(1).required(),
-	description: string().min(1).max(100),
-	guild_id: string().optional(),
-	dm_permission: boolean(),
-	default_permission: boolean(),
-	nsfw: boolean(),
-	default_member_permissions: string().nullable(),
-	options: array(
-		object({
-			type: number().required(),
-			name: string().min(1).max(32).required(),
-			description: string().min(1).max(100).required(),
-			required: boolean().optional(),
-			choices: array(
-				object({
-					name: string(),
-					// TODO: ensure is number or string
-					value: mixed<number | string>(),
-				}),
-			).optional(),
-			channel_types: array(number()).optional(),
-			min_value: number().optional(),
-			max_value: number().optional(),
-			min_length: number().optional(),
-			max_length: number().optional(),
-			autocomplete: boolean(),
-		}),
-	),
-});
-
-export type Schema = InferType<typeof schema>;
-
 export default function CommandEdit({
 	data,
+	error,
 	onSubmit,
 }: {
-	readonly data: Schema;
-	onSubmit(this: void, value: Schema): void;
+	readonly data: APIApplicationCommand;
+	readonly error?: Error | null;
+	onSubmit(this: void, value: APIApplicationCommand): void;
 }) {
-	const form = useForm({ data, onSubmit, validator: schema });
+	const form = useForm<APIApplicationCommand>({ data, onSubmit });
 
 	return (
 		<form className="flex flex-col gap-2" onSubmit={form.handleSubmit}>
@@ -118,9 +86,7 @@ export default function CommandEdit({
 				<CommandOptionsEdit form={form} name="options" />
 			</section>
 			<Separator className="mt-8" />
-			{form.error && (
-				<span className="text-right text-red-500">{form.error.message}</span>
-			)}
+			<ErrorAlert className="mt-2" error={error} />
 			<div className="flex gap-2 justify-end">
 				<Button type="submit">Save</Button>
 			</div>
