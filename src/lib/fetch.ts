@@ -77,7 +77,6 @@ export const queryClient = new QueryClient({
 		queries: {
 			queryFn: defaultQueryFn,
 			retry(failureCount, error) {
-				console.error(error);
 				if (error instanceof FetchError) {
 					return error.status >= 500;
 				}
